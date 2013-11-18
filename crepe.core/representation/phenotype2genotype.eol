@@ -1,0 +1,167 @@
+//import "../util/finitisationUtil.eol";
+//import "../util/util.eol";
+
+var unassignedReferences;
+var instantiableClasses;
+var individual : SEARCH!Individual;
+var segmentObjectMap : Map; // <Segment, Object>
+var featureCollection;
+
+//MOD.getResource().getContents().first().toGenotype().println(); // Testing
+
+operation MOD!EObject toGenotype() : SEARCH!Individual {
+	individual = new SEARCH!Individual;
+	segmentObjectMap = new Map;
+	unassignedReferences = new Sequence;	
+	instantiableClasses = MM!EClass.all.select(c | not c.`abstract` and not c.interface).sortBy(c | c.name);
+	
+	featureCollection = MM!EStructuralFeature.all; // TODO: select()????
+	
+	// Handle root (the set of instantiable classes must be the same for both G2P and P2G)
+	var rootClass = getRootClass();
+	if (not rootClass.canIContainMyself()) {
+		instantiableClasses.remove(rootClass);
+	}
+
+	// 1. Map each object (ignoring the root object)
+	for (o in self.eAllContents()) {
+		if (o.isIgnored()) continue;
+		
+		individual.segments.add(o.toSegment());
+	}
+	
+	// 2. Handle references
+	for (ref in unassignedReferences) {
+		assignUnassignedP2GReference(ref);
+		delete ref;
+	}
+
+	return individual;
+}
+
+//operation MM!EObject toSegment() : SEARCH!Segment {
+operation MOD!EObject toSegment() : SEARCH!Segment {
+	var segment = new SEARCH!Segment;
+	segmentObjectMap.put(segment, self);
+	
+	//self.eClass.name.println("self.eClass.name: ");
+	//self.eClass.owningModel().println("self.eClass.owningModel(): ");
+	
+	// 1. Class bit
+	segment.classBit = determineClassBit(self.eClass);
+
+	//self.eClass.name.println(segment.classBit + " = ");
+
+	// 2. Feature Pairs - Attributes	
+	for (attribute in self.eClass.eAllAttributes.select(a | not a.derived)) {
+		if (attribute.isIgnored()) continue;
+		if (not self.eIsSet(attribute)) continue;
+		
+		var features = self.eClass.eAllStructuralFeatures.select(f | not f.derived);
+		//var fsb = featureCollection.indexOf(attribute) + instantiableClasses.size(); // THIS IS AN ISSUE FOR G2P as we need to ignore derived
+		var fsb = features.indexOf(attribute);
+
+		var choices = getChoicesForFeature(self.eClass, attribute);
+		if (choices.size() == 0) {
+			attribute.println("No finitisation information found for: ");
+		}
+		
+		if (attribute.isMany()) {
+			var val = self.eGet(attribute);
+			for (v in val) {
+				var fp = new SEARCH!FeaturePair;
+				fp.featureSelectorBit = fsb;
+				
+				// DEBUG
+				if (attribute.eType.isTypeOf(MM!EEnum)) {
+					var newChoices =  choices.collect(n|n.name);
+					fp.featureValueBit = newChoices.indexOf(v.name);
+				} else {
+					fp.featureValueBit = choices.indexOf(v);
+				}
+				// END DEBUG
+				
+				segment.featurePairs.add(fp);
+			}
+		} else {
+			var fp = new SEARCH!FeaturePair;
+			fp.featureSelectorBit = fsb;
+			
+			// DEBUG selecting index by NAME...
+			var val = self.eGet(attribute);
+			if (attribute.eType.isTypeOf(MM!EEnum)) {
+				var newChoices =  choices.collect(n|n.name);
+				fp.featureValueBit = newChoices.indexOf(val.name);
+			} else {
+				fp.featureValueBit = choices.indexOf(val);
+			}
+			// END DEBUG
+			
+			//fp.featureValueBit = choices.indexOf(self.eGet(attribute));
+			segment.featurePairs.add(fp);
+			
+							
+				if (fp.featureValueBit == -1) {
+					self.eGet(attribute).println("-1 found: ");
+					self.eGet(attribute).type().println("type = ");
+					self.eGet(attribute).getClass().println("class=");
+					choices.println("choices:");
+				}
+		}
+		
+	}
+	
+	// 3. Feature Pairs - References
+	for (reference in self.eClass.eAllReferences.select(r | not r.derived)) {
+		if (reference.isIgnored()) continue;
+
+		var features = self.eClass.eAllStructuralFeatures.select(f | not f.derived);
+		var featureSelectorBit = features.indexOf(reference);
+		
+		var refValue = self.eGet(reference);
+		if (refValue.isUndefined() or refValue == null) continue;
+		
+		if (refValue.isKindOf(Sequence)) {
+			for (r in refValue) {
+				var fp = new SEARCH!FeaturePair;
+				fp.featureSelectorBit = featureSelectorBit;
+				
+				var unassignedReference  = new SEARCH!UnhandledReference;
+				unassignedReference.object = r;
+				unassignedReference.featurePair = fp;
+				unassignedReference.reference = reference;
+				unassignedReferences.add(unassignedReference);
+				
+				segment.featurePairs.add(fp);
+			}
+		} else {
+			var fp = new SEARCH!FeaturePair;
+			fp.featureSelectorBit = featureSelectorBit;
+			
+			var unassignedReference  = new SEARCH!UnhandledReference;
+			unassignedReference.object = refValue; // The target
+			unassignedReference.featurePair = fp;
+			unassignedReference.reference = reference;
+			unassignedReferences.add(unassignedReference);
+			
+			segment.featurePairs.add(fp);
+		}
+	}	
+	return segment;	
+}
+
+operation determineClassBit(eClass: Any) : Integer{
+	// Doesn't seem to match based on the objects (to do with how the resources have been loaded??) so matching
+	// on name and classifierId
+//	instantiableClasses.collect(c|c.name).println();
+	var cl = instantiableClasses.selectOne(c|c.name==eClass.name and c.getClassifierId() == eClass.getClassifierId());
+	return instantiableClasses.indexOf(cl);
+}
+
+operation assignUnassignedP2GReference(ref : SEARCH!UnhandledReference) {
+	var potentialTargets = individual.segments.select(s | ref.reference.eType.isInstance(segmentObjectMap.get(s)));
+	if (potentialTargets.size() == 0) return;
+	
+	var actualTarget = individual.segments.selectOne(s | segmentObjectMap.get(s) == ref.object);
+	ref.featurePair.featureValueBit = potentialTargets.indexOf(actualTarget);
+}

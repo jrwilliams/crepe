@@ -1,0 +1,17 @@
+@namespace(uri="map",prefix="map")
+package map;
+
+class Country {
+	val City[*] cities;
+	val Distance[*] distances;
+}
+
+class City {
+	attr String name;
+}
+
+class Distance {
+	attr int distance;
+	ref City city1;
+	ref City city2;
+}

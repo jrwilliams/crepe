@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="ASCII"?>
+<MetamodelFinitisation xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="Finitisation" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore">
+  <rootObject href="route#//Route"/>
+  <finitisations xsi:type="EObjectFeatureListFinitisation">
+    <feature xsi:type="ecore:EReference" href="route#//Stop/city"/>
+    <list href="uk.model#//@cities.0"/>
+    <list href="uk.model#//@cities.1"/>
+    <list href="uk.model#//@cities.2"/>
+    <list href="uk.model#//@cities.3"/>
+  </finitisations>
+  <ignores href="route#//Product"/>
+</MetamodelFinitisation>

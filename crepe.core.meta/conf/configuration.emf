@@ -1,0 +1,13 @@
+@namespace(
+	uri="http://crepe.core/meta/conf",
+	prefix="conf")
+package configuration;
+
+class Configuration {
+	val Property[*] properties;
+}
+
+class Property {
+   attr String name;
+   attr String value;
+}

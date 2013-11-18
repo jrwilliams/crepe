@@ -1,0 +1,38 @@
+@namespace(
+	uri="http://crepe.core/meta/search",
+	prefix="search")
+package search;
+
+class Search {
+	ordered val Population[*] generations;
+}
+class Population {
+	val Individual[*] individuals;
+}
+
+class Individual {
+   attr double fitness = -1;
+   attr boolean fitnessEvaluated = false;
+   attr boolean mutated = false;
+   attr boolean elite = false;
+   ref Individual[0..2] parents;
+   ordered val Segment[*] segments;
+}
+
+class Segment {
+   attr int classBit;
+   attr boolean redundant = false;
+   val FeaturePair[*] featurePairs;
+}
+
+class FeaturePair {
+   attr int featureSelectorBit;
+   attr int featureValueBit;
+   attr boolean redundant = false; 
+}
+
+class UnhandledReference {
+   ref EObject object;
+   ref ecore.EReference reference;
+   ref FeaturePair featurePair;
+}

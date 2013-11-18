@@ -1,0 +1,91 @@
+import '../../util/util.eol';
+import '../../representation/genotype2phenotype.eol';
+import '../../representation/phenotype2genotype.eol';
+import '../ops/controlOperations.eol';
+import '../ops/geneticOperations.eol';
+
+// utility
+var t = 0; // iteration counter
+//var random = setupRandomSeed();
+var maxAllele = 1000; // TODO: Add to config/determine automatically
+
+// Necessary for genotype to phenotype mapping
+var unassignedReferences;
+var modelObjects;
+var instantiableClasses;
+var objectSegmentMap;
+var featureFeaturePairMap;
+var fitFunctionIsEol = false;
+
+operation commence() {
+	var candidate = initialise();
+	candidate.evaluate();
+	
+	while (not candidate.terminate()) {
+		t = t + 1;
+		t.print("Generation #");
+		candidate.fitness.println(", current best fitness: ");
+		
+		var neighbours = candidate.createNeighbours(); // CONF for #neugbs
+		
+		for (neigh in neighbours) {
+			neigh.evaluate();
+		}
+
+		var fittestNeighbour = neighbours.sortBy(i | i.fitness).first();
+		if (fittestNeighbour.fitness < candidate.fitness) {
+			candidate = fittestNeighbour;
+		}
+		
+		// Clean up
+		for (n in neighbours) {
+			if (n <> candidate) delete n;
+		}
+		candidate.fitness.println(",");
+	}
+	
+}
+
+operation initialise() : SEARCH!Individual {
+	return randomlyCreateIndividuals(1).at(0);
+}
+
+operation SEARCH!Individual createNeighbours() : Sequence {
+	var number = getConfigurationProperty("hillclimb.neighbours.quantity").asInteger();
+	var neighbours = new Sequence;
+	
+	for (i in Sequence{1..number}) {
+		var neigh = self.duplicate();
+		neigh.mutate();
+		neighbours.add(neigh);
+	}
+	
+	return neighbours;
+}
+
+
+operation SEARCH!Individual terminate() : Boolean {
+	var fitThreshold = getConfigurationProperty("termination.fitnessThreshold").asReal();
+	if (self.fitness <= fitThreshold) {
+		'Fitness threshold reached. Terminating'.println();
+		return true;
+	}
+	// Iterations
+	var maxIterations = getConfigurationProperty("termination.iterationsThreshold").asInteger();
+	if (t >= maxIterations) {
+		'Max iterations reached. Terminating.'.println();
+		return true;
+	}
+
+	return false;
+}
+
+operation SEARCH!Individual evaluate() {
+	var phenotype = self.toPhenotype();
+		
+	self.fitness = doEvaluateFitness(phenotype).asDouble();
+	self.fitnessEvaluated = true; //TODO: This isn't actually used.
+
+	// Clean up
+	delete phenotype;	
+}

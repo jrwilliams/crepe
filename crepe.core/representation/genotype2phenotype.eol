@@ -1,0 +1,246 @@
+/**
+ * Converts an Individual (http://jw.research.crepe/population) into an ecore model.
+ * 
+ * Inputs:
+ * 		MM  - Metamodel of the desired models 	(Ecore)
+ * 		FIN - Finitisation model for MM			(http://jw.research.crepe/finitisation)
+ * 		SEARCH - Individual being evaluated		(http://jw.research.crepe/population or http://jw.research.crepe/search)
+ */
+import "../util/finitisationUtil.eol";
+
+// Required fields -- this will need to be global in the EOL file. This is necessary only when 
+// this script is executed directly. If it is called by another, these variables are not created!
+var instantiableClasses;
+var featureCollection;
+var unassignedReferences;
+var modelObjects;
+var objectSegmentMap;
+var featureFeaturePairMap; // key = self.eClass.name+"-"+feature.name
+var fitFunctionIsEol = false; // true if uses Java.
+
+/**
+ * Method used to transform an Individual (genotype) to its phenotypical form. The resulting
+ * EObject will need to be stored inside the target model, for example (model named 'MOD'):
+ * 
+ * 			var phenotype = individual.toPhenotype();
+ * 			MOD.getResource().getContents().add(phenotype);
+ */
+operation SEARCH!Individual toPhenotype() : MM!EObject {
+
+//DEBUG
+//	self.println();
+
+
+	// 0. Ensure a clean run
+	unassignedReferences = new Sequence;
+	modelObjects = new Sequence;
+	objectSegmentMap = new Map;
+	featureFeaturePairMap = new Map;
+	// TODO: This needs extending to only allow classes that can be contained
+	// 		 by the root object.
+	if (instantiableClasses.isUndefined() or instantiableClasses.size() == 0) {
+		instantiableClasses = getInstantiableClasses();
+	}
+	featureCollection = MM!EStructuralFeature.all;// TODO: move to util
+	
+	// 1. Create the root object
+	var rootClass = getRootClass();
+	
+	var rootObject = rootClass.instantiate();
+	
+	if (not rootClass.canIContainMyself()) {
+		instantiableClasses.remove(rootClass);
+	}
+	
+	// 2. Transform GEN
+	for (segment in self.segments) {
+		var obj = segment.toEObject();
+		modelObjects.add(obj);
+		objectSegmentMap.put(obj, segment);
+		segment.redundant = true;
+	}
+	
+	// 3. Assign everything possible to the root object
+	for (ref in rootClass.eAllReferences) {
+		if (ref.containment and not ref.container) {
+			for (o in modelObjects) {
+				if (ref.eType.isInstance(o)) {
+					rootObject.setOrAddNewValue(ref, o, null);
+					//objectSegmentMap.get(o).redundant = false;
+				}
+			}
+		}
+	}
+	
+	// 4. Handle unassigned references
+	for (ref in unassignedReferences.clone()) {
+		assignUnassignedG2PReference(ref);
+		delete ref;
+	}
+	
+	// 5. Label all segments that produced contents as not redundant
+	for (o in rootObject.eAllContents) {
+		objectSegmentMap.get(o).redundant = false;
+	}
+	
+	// FIXME (27 Jun '13): We need to delete dangling refs.. We used to do that. Why not now? 
+	
+	// 5. Move the model object to MOD
+	//MOD.getResource().getContents().add(rootObject); 
+	// FIXME: not required?? - Create another script for single use, THAT can use the MOD model
+	
+	return rootObject;
+}
+
+/**
+ * Turns a Segment into an object conforming to the target metamodel. 
+ */
+operation SEARCH!Segment toEObject() : MM!EObject {
+	var eClass = selectClassifierToInstantiate(self.classBit);
+	
+	// Check we can instantiate this
+	if (not eClass.canInstantiate()) {
+		self.redundant = true;
+		return null;
+	}
+	
+	// Let's do it
+	var o = eClass.instantiate();
+	
+	// Assign structural features
+	if (eClass.eAllStructuralFeatures.size() > 0) {
+		for (fp in self.featurePairs) {
+			o.assignFeature(fp);
+		}
+	}
+	return o;
+}
+
+/**
+ * Allocates values to features of the model object.
+ */
+operation MM!EObject assignFeature(fp : SEARCH!FeaturePair) {
+	var feature = self.eClass.selectStructuralFeatureToInstantiate(fp.featureSelectorBit);
+	
+	if (feature == null) return;
+	
+	// Ensure the user wants this feature
+	if (feature.isIgnored()) {
+		fp.redundant = true;
+		return;
+	}
+
+	// Select all possibilities
+	var choices = getChoicesForFeature(self.eClass, feature);
+
+	// Now select and assign the feature
+	if (feature.isTypeOf(MM!EAttribute)) {
+		if (choices == null or choices.size() == 0) {
+			fp.redundant = true;
+			return;
+		}
+		var test = modulo(fp.featureValueBit,choices.size());
+		var val = choices.at(test);
+		self.setOrAddNewValue(feature, val, fp);
+	} else if (feature.isTypeOf(MM!EReference)) {
+		if (choices == null or choices.size() == 0) {
+			// Create an unassigned reference
+			var unref = SEARCH!UnhandledReference.createInstance();
+			unref.object = self;
+			unref.reference = feature;
+			unref.featurePair = fp;
+			unassignedReferences.add(unref);
+	
+		} else {
+			// If there is a finitisation for the reference, we will assign it
+			// (this could be, for example, a cross-model reference)
+			var val = choices.at(modulo(fp.featureValueBit,choices.size()));
+			self.setOrAddNewValue(feature, val, fp);
+		}
+	}
+}
+
+/** 
+ * Actually assign the value.
+ * (The featurePair is required so we can mark it redundant if necessary.)
+ */
+operation MM!EObject setOrAddNewValue(feature : MM!EStructuralFeature, value : Any, featurePair: SEARCH!FeaturePair) {
+	if (feature.isMany()) {
+		var featureValues = self.eGet(feature);
+		if (featureValues.includes(value)) {
+			if (featurePair.isDefined()) // Required due to line 73
+				featurePair.redundant = true;
+		}
+		if ((feature.upperBound == -1 or featureValues.size() < feature.upperBound) and not isFeatureScopeReached(feature,featureValues.size())) {
+			featureValues.add(value);
+		} else {
+			if (featurePair.isDefined()) // Required due to line 73
+				featurePair.redundant = true;
+		}
+	} else {
+		if (feature.isKindOf(MM!EReference) and feature.container and isAncestor(self,value)) { 
+			feature.name.println(self.eClass.name + "'s feature trying to cycle: ");
+			if (featurePair.isDefined()) // Required due to line 73
+				featurePair.redundant = true;
+			return;
+		} // avoid cyclic containment
+		
+		self.eSet(feature, value);
+		// Redundancy: If we've overwritten the value, we need to update the map
+		// FIXME: This is totally wrong. The feature is part of the metamodel, not the model. 
+		// Map would need to be <<Object, Feature>, Value>
+		if (featureFeaturePairMap.containsKey(self.eClass.name+"-"+feature.name) and featureFeaturePairMap.get(self.eClass.name+"-"+feature.name).isDefined()) {
+			featureFeaturePairMap.get(self.eClass.name+"-"+feature.name).redundant = true;
+		}
+		featureFeaturePairMap.put(self.eClass.name+"-"+feature.name, featurePair);
+	}
+}
+
+/**
+ * Called once all model objects have been instantiated. Assigns any unassigned 
+ * references.
+ */
+operation assignUnassignedG2PReference(ref : SEARCH!UnhandledReference) {
+	// TODO: This does not currently support X-model refs
+	var potentialTargets = modelObjects.select(o | ref.reference.eType.isInstance(o));
+	
+	if (potentialTargets.size() > 0) {
+		var target = potentialTargets.at(modulo(ref.featurePair.featureValueBit, potentialTargets.size()));	
+		ref.object.setOrAddNewValue(ref.reference, target, ref.featurePair);
+//		objectSegmentMap.get(target).redundant = false;
+	} else {
+		ref.featurePair.redundant = true;
+	}
+}
+
+/**
+ * Uses the EClass' eFactory to create an instance of that class.
+ */
+operation MM!EClass instantiate() : MM!EObject {
+	return self.ePackage.eFactoryInstance.create(self);
+}
+
+/**
+ * Selects an EClass from the set of instantiable classes.
+ */
+operation selectClassifierToInstantiate(classBit : Integer) : MM!EClass {
+	return instantiableClasses.at(modulo(classBit, instantiableClasses.size()));
+}
+
+/**
+ * Selects an EStructuralFeature from the EClass.
+ */
+operation MM!EClass selectStructuralFeatureToInstantiate(featureBit : Integer) : MM!EStructuralFeature {
+
+	if (self.eAllStructuralFeatures.isUndefined() or self.eAllStructuralFeatures.size() == 0) return null;
+
+	var features = self.eAllStructuralFeatures.select(f | not f.derived and not f.isIgnored());
+	return features.at(modulo(featureBit, features.size()));
+}
+
+/**
+ * Calculates the remainder of a modulo b.
+ */
+operation modulo(a:Integer, b:Integer) : Integer {
+	return a - (a/b).floor() * b;
+}

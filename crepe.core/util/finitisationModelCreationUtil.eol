@@ -1,0 +1,56 @@
+
+operation gimmeColors() : Sequence {
+	return Sequence{"red","blue","green","yellow","black","violet","indigo","orange","white"};
+}
+
+operation gimmeUrlList() : Sequence {
+	return Sequence {"http://www.google.com","http://www.bing.com","http://www.yahoo.com"};
+}
+
+operation gimmeRandomStrings() : Sequence {
+	return Sequence {"Nnsfd","CmHNK","QEVYC","LnKnz","KIkFd","dhMEz","xHFZI","ignOt","tSGLL","vBftW"};
+}
+
+operation Sequence toStringList() : Sequence {
+	var result = new Sequence;
+	
+	for (i in self) {
+		result.add(i.asString());
+	}
+	
+	return result;
+}
+
+operation createEObjectFeatureListFinitisation(feature : MM!EObject, list : Sequence) : FIN!EObjectFeatureListFinitisation {
+	var f = new FIN!EObjectFeatureListFinitisation;
+	f.feature = feature;
+	f.list.addAll(list);
+	return f;
+}
+
+operation createFeatureListFinitisation(feature : MM!EObject, list : Sequence) : FIN!FeatureListFinitisation{
+	var f = new FIN!FeatureListFinitisation;
+	f.feature = feature;
+	f.list.addAll(list);
+	return f;
+}
+
+operation createScopeFinitisation(object : MM!EObject, min : Integer, max : Integer) {
+	var f = new FIN!ScopeFinitisation;
+	f.object = object;
+	f.min = min;
+	f.max = max;
+	return f;
+}
+
+operation selectFeatureByName(className:String, feature:String) : MM!EObject {
+	return MM!EClass.all.selectOne(c|c.name==className)
+		.eAllStructuralFeatures.selectOne(f | f.name == feature);
+}
+
+operation createDataTypeListFinitisation(type : String, list : Sequence) : FIN!DataTypeListFinitisation {
+	var f = new FIN!DataTypeListFinitisation;
+	f.javaTypeName = type;
+	f.list.addAll(list);
+	return f;
+}

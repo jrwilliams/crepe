@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="ASCII"?>
+<Queens:Board xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:Queens="Queens">
+  <queens row="5" col="2"/>
+  <queens row="6" col="4"/>
+  <queens row="1" col="0"/>
+  <queens row="5" col="2"/>
+  <queens row="4" col="5"/>
+  <queens row="3"/>
+  <queens col="1"/>
+  <queens row="7" col="7"/>
+</Queens:Board>

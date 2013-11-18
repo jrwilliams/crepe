@@ -1,0 +1,51 @@
+@namespace(uri="http://crepe.core/meta/finitisation", prefix="finitisation")
+package EcoreFinitisation;
+
+import "http://www.eclipse.org/emf/2002/Ecore";
+
+class MetamodelFinitisation {
+	ref EObject rootObject;
+  	val Finitisation[*] finitisations;
+  	ref EObject[*] ignores;
+}
+
+abstract class Finitisation { }
+
+abstract class FeatureFinitisation extends Finitisation {
+   	ref ecore.EStructuralFeature feature;
+   	ref ecore.EClass parentClass;
+}
+
+class FeatureRangeFinitisation extends FeatureFinitisation {
+	attr Double first;
+	attr Double last;
+	attr Double step;   
+}
+
+class FeatureListFinitisation extends FeatureFinitisation {
+   attr Object[*] list;
+}
+
+class EObjectFeatureListFinitisation extends FeatureFinitisation {
+   ref EObject[*] list;
+}
+
+class ScopeFinitisation extends Finitisation {
+   ref EObject object;
+   attr int min = 0;
+   attr int max = -1;
+}
+
+abstract class DataTypeFinitisation extends Finitisation {
+   attr String javaTypeName;
+}
+
+class DataTypeRangeFinitisation extends DataTypeFinitisation {
+	attr Double first;
+	attr Double last;
+	attr Double step;      
+}
+
+class DataTypeListFinitisation extends DataTypeFinitisation {
+	attr Object[*] list;     
+}

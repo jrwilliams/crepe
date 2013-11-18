@@ -1,0 +1,18 @@
+@namespace(uri="route",prefix="route")
+package route;
+
+import "/crepe.examples/tsp/metamodels/map.ecore";
+
+class Route {
+	val Stop[*] stops;
+	val Product[*] goods;
+}
+
+class Stop {
+	ref map.City city;
+	ref Product[*] goods;
+}
+
+class Product {
+	attr String name;
+}

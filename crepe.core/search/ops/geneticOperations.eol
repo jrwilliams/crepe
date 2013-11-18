@@ -1,0 +1,262 @@
+//import '../util/util.eol';
+
+/**
+ * Selects a new generation of individuals. 
+ * 
+ * @self The population from which to select a new population.
+ * @returns A new Population selected (and adapted) from the @self.
+ */
+operation SEARCH!Population selectAndBreed() : SEARCH!Population {
+	var newPopulation = new SEARCH!Population;
+	SEARCH!Search.all.last().generations.add(newPopulation);
+	
+	// Sort the segments by fitness
+	var inds = self.individuals;
+	inds = inds.sortBy(i | i.fitness); // Sorts into ascending order. So we want the top X.
+	
+//	inds.collect(i|i.fitness).println("fitnesses in pop: ");
+	
+	// Select based on configuration properties
+	var populationSize = getConfigurationProperty("population.size").asInteger();
+	var parentPopulationSize = getConfigurationProperty("parentPopulation.size").asInteger();
+	var elitePopulationSize = getConfigurationProperty("elitePopulation.size").asInteger();
+	
+	// Parents, children and elites
+	var parents = select(inds, getConfigurationProperty("parentPopulation.selectionType"), getConfigurationProperty("parentPopulation.size").asInteger());
+	var children = parents.breedAndAdapt();
+	
+//	inds.collect(i|i.fitness).println("fitnesses in pop (pre elite selection): ");
+	var _elites = select(inds, getConfigurationProperty("elitePopulation.selectionType"), getConfigurationProperty("elitePopulation.size").asInteger());
+//	inds.collect(i|i.fitness).println("fitnesses in pop (post elite selection): ");
+//	_elites.collect(i|i.fitness).println("elite fitnesses: ");
+	
+	// Mark the elites
+	var elites = new Sequence;
+	for (_e in _elites) {
+		var e = _e.duplicate();
+		e.parents.add(_e);
+		e.elite = true;
+		elites.add(e);
+	}
+
+	// Add the lucky ones to the next generation
+	newPopulation.individuals.addAll(children);
+	newPopulation.individuals.addAll(elites);
+
+	return newPopulation;
+}
+
+/**
+ * Called by selectAndBreed(). Selects a set of Individuals based upon the given selection criteria.
+ *
+ * @param individuals - sequence of individuals to select from.
+ * @param selectionType - configuration property for the selection type (random, tournament, copy, fittest, fitnessProportional)
+ * @param number - the number of individuals to select.
+ * @returns Sequence of Individuals selected (and duplicated) from @param individuals 
+ */
+operation select(individuals : Sequence, selectionType : String, number : Integer) : Sequence {
+	var selectedPopulation = new Sequence;
+
+	switch (selectionType) {
+		case "random":
+			for (i in Sequence{0..number-1}) {
+				selectedPopulation.add(individuals.at(random.nextInt(individuals.size())));//.duplicate());
+			}
+		case "tournament":
+			var tournamentSize = getConfigurationProperty("tournamentSize").asInteger();
+			for (i in Sequence{0..number-1}) {
+				// Select the contestants 
+				var contestants = new Sequence;
+				for (c in Sequence{1..tournamentSize}) {
+					contestants.add(individuals.at(random.nextInt(individuals.size())));//.duplicate());
+				}			
+				
+				// Fight
+				contestants = contestants.sortBy(c | c.fitness);
+				
+				// Select the winner
+				selectedPopulation.add(contestants.at(0)); 
+			}
+		case "copy": 
+			var multiples = number / individuals.size();
+			for (m in Sequence{0..multiples-1}) {
+				for (i in individuals) {
+					selectedPopulation.add(i);//.duplicate());
+				}
+			}
+		case "fittest":
+			// THIS ASSUMES THAT THE POPULATION IS ORDERED!
+			for (i in Sequence{0..number-1}) {
+				selectedPopulation.add(individuals.at(i));
+			}
+		case "fitnessProportional":
+			// TODO;
+	}
+	return selectedPopulation;
+}
+
+/**
+ * Breeds (crossover) and adapts (mutation, construction, destruction) a Sequence of Individuals.
+ * 
+ * @self A Sequence of Individuals to be bred.
+ * @returns A new Sequence of Individuals that have been adapted from the @self
+ */
+operation Sequence breedAndAdapt() : Sequence{
+	var childPopulationSize = getConfigurationProperty("childPopulation.size").asInteger();
+	
+	var children = new Sequence;
+	
+	// Breeding
+	while(children.size() < childPopulationSize) {
+		// Select
+		var parent1 = self.at(random.nextInt(self.size()));//.duplicate();
+		var parent2 = self.at(random.nextInt(self.size()));//.duplicate();
+		var child1 = parent1.duplicate();
+		var child2 = parent2.duplicate();	
+		
+		// Create family tree	
+		child1.parents.add(parent1);
+		child1.parents.add(parent2);
+		child2.parents.add(parent1);
+		child2.parents.add(parent2);
+		
+		// Breed
+		crossover(child1, child2);
+		
+		// Store
+		children.add(child1);
+		children.add(child2);
+	}
+	
+	// Adapting
+	for (child in children) {
+		child.mutate();
+		child.construct();
+		child.destruct();
+	}
+	
+	// Clean up the parents
+	//for (p in self) delete p;
+	
+	return children;
+}
+
+/**
+ * Applies random single-point crossover to the given Individuals.
+ * (Currently only supports single-point, segment-gap crossover)
+ * 
+ * @param parent1 - The first parent.
+ * @param parent2 - The second parent.
+ */
+operation crossover(parent1 : SEARCH!Individual, parent2 : SEARCH!Individual) {
+	// Nothing to do if the parents are the same
+	if (parent1 == parent2) return;
+
+	var maxXoverPoint = (parent1.segments.size()-1).min(parent2.segments.size()-1);
+	var possibleCrossOverPoints = Sequence{0..maxXoverPoint}; 
+	var crossoverPoint = possibleCrossOverPoints.at(random.nextInt(possibleCrossOverPoints.size()));
+	
+	for (i in Sequence{0..crossoverPoint}) {
+		var p1temp = parent1.segments.removeAt(i);
+		var p2temp = parent2.segments.removeAt(i);
+		
+		parent1.segments.add(i, p2temp); 
+		parent2.segments.add(i, p1temp);
+	} 
+}
+
+/**
+ * Mutates a given Individual based on the configuration properties.
+ * (Currently only supports random mutations (i.e. not incremental))
+ * 
+ * @self The individual being mutated.
+ */
+operation SEARCH!Individual mutate() {
+	var mutationType = getConfigurationProperty("childPopulation.mutation.type");
+	
+	var cbProb;
+	var fsProb;
+	var fvProb;
+		
+	// Determine the probabilites for each type of bit.
+	switch (mutationType) {
+		case "uniform":
+			var prob = getConfigurationProperty("childPopulation.mutation.uniform").asReal();
+			cbProb = prob;
+			fsProb = prob;
+			fvProb = prob;
+		
+		case "weighted":
+			var cbProb = getConfigurationProperty("childPopulation.mutation.weighted.classBit").asReal();
+			var fsProb = getConfigurationProperty("childPopulation.mutation.weighted.featureSelectorBit").asReal();
+			var fvProb = getConfigurationProperty("childPopulation.mutation.weighted.featureValueBit").asReal();
+	}
+	
+	// Let's breed some monsters!
+	for (seg in self.segments) {
+		// Class bit
+		var r = random.nextDouble();
+		if (r < cbProb) {
+			self.mutated = true;
+			seg.classBit = random.nextInt(maxAllele+1);
+		}
+		// feature pairs
+		for (fp in seg.featurePairs) {
+			r = random.nextDouble();
+			if (r < fsProb) {
+				self.mutated = true;	
+				fp.featureSelectorBit = random.nextInt(maxAllele+1);
+			}
+			r = random.nextDouble();
+			if (r < fvProb) {
+				self.mutated = true;
+				fp.featureValueBit = random.nextInt(maxAllele+1);
+			}
+		}
+	}
+}
+
+/**
+ * Creates a random segment and inserts randomly with the configuration-specified probability.
+ * 
+ * Configuration properties:
+ * 		childPopulation.construct.probability
+ * 		population.segments.numFeaturePairs
+ *
+ * @self The individual to add to.
+ */
+operation SEARCH!Individual construct() {
+	var prob = getConfigurationProperty("childPopulation.construct.probability").asReal();
+	var r = random.nextDouble();
+	
+	if (r < prob) {
+		var maxNumFps = getConfigurationProperty("population.segments.featurePairs.quantity.max").asInteger();
+		var minNumFps = getConfigurationProperty("population.segments.featurePairs.quantity.min").asInteger();
+
+		var numFps = random.nextInt(maxNumFps-minNumFps+1) + minNumFps;
+		var insertionPoint = random.nextInt(self.segments.size()-1);
+
+		var newSegment : SEARCH!Segment = randomlyCreateSegment(numFps, maxAllele);
+		
+		self.segments.add(insertionPoint, newSegment);		
+	}
+}
+
+/**
+ * Deletes a segment at random with the configuration-specified probability.
+ * 
+ * Configuration properties:
+ * 		childPopulation.destruct.probability
+ *
+ * @self The individual to destruct.
+ */
+operation SEARCH!Individual destruct() {
+	var prob = getConfigurationProperty("childPopulation.destruct.probability").asReal();
+	var r = random.nextDouble();
+	
+	if (r < prob) {
+		var indexToDelete = random.nextInt(self.segments.size()-1);
+		self.segments.removeAt(indexToDelete);
+	}
+} 
+

@@ -1,0 +1,266 @@
+/**
+ * Grabs the set of instantiable classes. Rules out those who are abstract,
+ * interfaces, ignored, children of ignored classes
+ */
+operation getInstantiableClasses() : Sequence {
+	var instantiable = new Sequence;
+
+	// Get all classes that are not abstract or interfaces
+	var cs = MM!EClass.all.select(c | not c.`abstract` and not c.interface).sortBy(c | c.name);
+	
+	// We only want those referenceable (directly or not) by the root
+	var rootClass = getRootClass();
+	
+	// Now find the ignoreds
+	for (c in cs) {
+		if (not c.isIgnored() and not c.isAncestorIgnored()) {
+			instantiable.add(c);
+		}
+	}
+	
+	// Now only get the ones that are childen of the root
+	// TODO !!!!	
+	
+	return instantiable.asSequence();
+}
+
+/** 
+ * Currently not used, but possible useful.
+ */
+operation MM!EClass getAllSuperTypes() : Sequence {
+	var supers = new Sequence;
+	
+	for (super in self.eSuperTypes) {
+		if (self == super) continue; // defensive
+		supers.addAll(super.getAllSuperTypes());
+	}
+	
+	return supers;
+}
+
+/**
+ *	A pretty printer for Individuals.
+ */
+operation SEARCH!Individual println() {
+	self.toString().println();
+}
+
+operation SEARCH!Individual println(pre : String) {
+	pre.print();
+	self.println();
+}
+
+operation SEARCH!Individual toString() : String {
+	var out = "[ ";
+	
+	for (s in self.segments) {
+		out = out + "[ ";
+		out = out + s.classBit.asString();
+		
+		for (fp in s.featurePairs) {
+			out = out + "[";
+			out = out + fp.featureSelectorBit;
+			out = out + ",";
+			out = out + fp.featureValueBit;
+			out = out + "]";
+		}
+		
+		out = out + " ]";
+	}
+	
+	out = out + " ]";
+	return out;
+}
+
+operation hasConfigurationProperty(name : String) : Boolean {
+	return CONF!Property.all.selectOne(p | p.name == name).isDefined();
+}
+
+/**
+ * Grab the value for a given configuration property.
+ */
+operation getConfigurationProperty(name : String) : Any {
+	return CONF!Property.all.selectOne(p | p.name == name).value;
+}
+
+/**
+ * 
+ */
+operation setOrCreateConfigurationProperty(name : String, value : Any) {
+	var prop = CONF!Property.all.selectOne(p|p.name == name);
+	if (prop.isDefined()) {
+		prop.value = value.asString();
+	} else {
+		prop = new CONF!Property;
+		prop.name = name;
+		prop.value = value.asString();
+		CONF!Configuration.all.first().properties.add(prop);
+	}
+}
+
+operation randomlyCreateIndividuals(popSize : Integer) : Sequence {
+	var inds = new Sequence;
+	
+	// Get necessary properties
+	var maxNumSegments = getConfigurationProperty("population.segments.quantity.max").asInteger();
+	var minNumSegments = getConfigurationProperty("population.segments.quantity.min").asInteger();
+	var maxNumFps = getConfigurationProperty("population.segments.featurePairs.quantity.max").asInteger();
+	var minNumFps = getConfigurationProperty("population.segments.featurePairs.quantity.min").asInteger();
+				
+	// Now create random individuals
+	for (j in Sequence{1..popSize}) {
+		var individual = new SEARCH!Individual;
+		
+		var numSegments = random.nextInt(maxNumSegments-minNumSegments+1) + minNumSegments;
+		for (i in Sequence{1..numSegments}) { 
+			var numFps = random.nextInt(maxNumFps-minNumFps+1) + minNumFps;
+			individual.segments.add(randomlyCreateSegment(numFps, maxAllele));
+		}
+		//pop.individuals.add(individual);
+		inds.add(individual);
+	}
+	return inds;
+}
+
+/** 
+ * Randomly creates a new Segment based on the operation parameters.
+ * 
+ * @param numFps - the number of feature pairs to create in the segment
+ * @param maxAllele - the maximum value of each allele
+ * @returns A newly create, randomised, Segment.
+ */
+operation randomlyCreateSegment(numFps : Integer, maxAllele : Integer) : SEARCH!Segment{
+	//var bits = Sequence{0..maxAllele};
+	
+	var segment = new SEARCH!Segment;
+	//segment.classBit = bits.at(random.nextInt(bits.size()));
+	segment.classBit = random.nextInt(maxAllele+1);
+	 
+	for (i in Sequence{1..numFps}) {
+		var fp = new SEARCH!FeaturePair;
+		//fp.featureSelectorBit = bits.at(random.nextInt(bits.size()));
+		//fp.featureValueBit = bits.at(random.nextInt(bits.size()));
+		fp.featureSelectorBit = random.nextInt(maxAllele+1);
+		fp.featureValueBit = random.nextInt(maxAllele+1);
+		segment.featurePairs.add(fp);
+	}
+	return segment;
+}
+
+
+/** 
+ * Assumes a sequence of Individuals.
+ */ 
+operation Sequence duplicate() : Sequence {
+	var newSeq = new Sequence;
+	
+	for (i in self) {
+		newSeq.add(i.duplicate());	
+	}
+	return newSeq;
+}
+
+/**
+ * 
+ */
+operation SEARCH!Individual duplicate() : SEARCH!Individual {
+	var newIndividual = new SEARCH!Individual;
+	
+	newIndividual.fitness = self.fitness;
+	newIndividual.fitnessEvaluated = self.fitnessEvaluated;
+	
+	for (s in self.segments) {
+		newIndividual.segments.add(s.duplicate());
+	}
+	
+	return newIndividual;
+}
+
+/**
+ * 
+ */
+operation SEARCH!Segment duplicate() : SEARCH!Segment {
+	var newSegment = new SEARCH!Segment;
+	
+	newSegment.classBit = self.classBit;
+	
+	for (fp in self.featurePairs) {
+		newSegment.featurePairs.add(fp.duplicate());
+	}
+	
+	return newSegment;
+}
+
+/**
+ * 
+ */
+operation SEARCH!FeaturePair duplicate() : SEARCH!FeaturePair {
+	var newFp = new SEARCH!FeaturePair;
+	
+	newFp.featureSelectorBit = self.featureSelectorBit;
+	newFp.featureValueBit = self.featureValueBit;
+	
+	return newFp;
+}
+
+/**
+ * EOL version of org.eclipse.emf.ecore.util.EcoreUtil.isAncestor()
+ */
+operation isAncestor(ancestorEObject : MM!EObject, eObject : MM!EObject) : Boolean {
+	if (eObject <> null) {
+		if (eObject == ancestorEObject) {
+			return true;
+		}
+		var count = 0;
+		var eContainer = eObject.eInternalContainer();
+		while (eContainer <> null and eContainer <> eObject) {
+			count = count+1;
+			if (count > 100000) {
+				return isAncestor(ancestorEObject, eContainer);
+			}
+			if (eContainer == ancestorEObject) {
+				return true;
+			}
+			eContainer = eContainer.eInternalContainer();
+			//count.println();
+		}
+	}
+	return false;
+}
+
+
+/**
+ * Determines whether the objects conforming to the root class are allowed to be instantiated.
+ *
+ * TODO: this needs testing thoroughly
+ *
+ */
+operation MM!EClass canIContainMyself() {
+	for (r in self.eAllReferences) {
+		if (r.eType == self and r.containment) {
+			return true;
+		}
+	}
+
+	for (c in self.eAllContents()) {
+		if (c.isTypeOf(MM!EClass)) {
+			for (r in c.eAllReferences) {
+				if (r.eType == self and r.containment) {
+					return true;
+				}
+			}
+		}		
+
+	}
+	return false; // Oh no, I simply can't!
+}
+
+operation setupRandomSeed() : Any {
+	if (hasConfigurationProperty("usePrngSeed") and getConfigurationProperty("usePrngSeed").asBoolean()) {
+		var seed = getConfigurationProperty("prngSeed").asLong();
+		return new Native("java.util.Random")(seed);
+	} else { 
+		return new Native("java.util.Random");
+	}
+}
+

@@ -1,0 +1,104 @@
+import "../../crepe.core/util/util.eol";
+import '../../crepe.core/search/algs/hillClimbing.eol';
+
+// Utility variables
+var t = 0; // iteration counter
+var random = setupRandomSeed();
+var maxAllele = 1000; // TODO: Add to config/determine automatically
+
+// Necessary for genotype to phenotype mapping
+var unassignedReferences;
+var modelObjects;
+var instantiableClasses;
+var objectSegmentMap;
+var featureFeaturePairMap;
+var featureCollection;
+var fitFunctionIsEol = true;
+
+// Setup finitisation model
+var fin = new FIN!MetamodelFinitisation;
+fin.rootObject = MM!EClass.all.selectOne(c | c.name == "Route");
+fin.finitisations.add(createEObjectFeatureListFinitisation(selectFeatureByName("Stop", "city"), MAP!City.all));
+fin.ignores.add(MM!EClass.all.selectOne(c | c.name == "Product"));
+fin.ignores.add(selectFeatureByName("Stop", "goods"));
+
+// Configure segments based on #cities
+setOrCreateConfigurationProperty("population.segments.quantity.max", MAP!City.all.size());
+setOrCreateConfigurationProperty("population.segments.quantity.min", MAP!City.all.size());
+
+// Now search
+for (seed in Sequence{724377,7199439,4096091,7163541,2691539,8282485,4824792,6231867,6579662,6256102}) {
+	random = new Native("java.util.Random")(seed.asLong());
+	seed.print();
+	t = 0; // Reset generation count
+	commence();
+}
+
+'DonE!'.println();
+
+operation doEvaluateFitness(candidate : MM!EObject) : Real {
+	MOD.getResource.getContents().clear();
+	MOD.getResource.getContents().add(candidate);
+	MOD.store();
+
+	// First of all punish solutions which don't include all cities	(I.e. aren't valid)
+	var missingCities = 0;
+	for (city in MAP!City.all) {
+		if (candidate.stops.select(s | s.city == city).size() == 0) {
+			missingCities = missingCities + 1;
+		}
+	}
+	
+	if (missingCities <> 0) {
+		//(candidate.toString() + " => " + missingCities).println();
+		return missingCities;
+	}
+	
+	// Now calculate the distance score for valid solutions
+	var distance = 0.0;
+	var isComplete = false;
+	for (i in Sequence{0..candidate.stops.size()}) {
+		var stop = candidate.stops.at(i).city;
+		var nextStop;
+		// Need to get back to the start
+		if (i + 1 >= candidate.stops.size()) {
+			nextStop = candidate.stops.at(0).city;
+			isComplete = true;
+		} else {
+			nextStop = candidate.stops.at(i+1).city;
+		}
+		
+		distance = distance + MAP!Distance.all.selectOne(d | 
+								(d.city1 == stop and d.city2 == nextStop) or 
+								(d.city1 == nextStop and d.city2 == stop)).distance;
+								
+		if (isComplete) break;
+	}
+	var fitness = 1.asDouble() - (1.asDouble()/distance.asDouble());
+	//(candidate.toString() + " => " + fitness + " (" + distance + ")").println();
+	return fitness;
+}	
+
+/**
+ * Override default impl: Just one neighbour - a random one.
+ */
+operation SEARCH!Individual createNeighbours() : Sequence {
+	var neighbours = new Sequence;
+	neighbours.add(randomlyCreateIndividuals(1).at(0));
+	return neighbours;
+}
+
+operation MOD!Route toString() : String{
+	var str = "[ ";
+	for (link in self.stops) {
+		str = str + link.toString() + ", ";
+	}
+	return str + "]";
+}
+
+operation MOD!Stop toString() : String {
+	var str = "";
+	if (self.city.isDefined()) str = str + self.city.name;
+	else str = str + "NULL";
+	return str;
+}

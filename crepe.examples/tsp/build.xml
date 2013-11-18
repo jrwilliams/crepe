@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+<project name="crepe.examples.tsp" basedir="." default="run">
+
+	
+	<!-- load Epsilon tasks -->
+	<!--<taskdef resource="org/eclipse/epsilon/workflow/tasks/epsilontasks.xml"
+			classpathref="epsilon-classpath" loaderref="epsilon-classpath.loader"/>-->
+<!--		
+	<taskdef resource="org/eclipse/epsilon/workflow/tasks/emf/epsilonemftasks.xml"
+		classpathref="epsilon-classpath" loaderref="epsilon-classpath.loader"/>-->
+	
+	<target name="run">
+		<!-- Load models -->	
+		<epsilon.emf.register file="metamodels/map.ecore"/>
+		<epsilon.emf.register file="metamodels/route.ecore"/>
+		<epsilon.emf.register file="../../crepe.core.meta/finitisation/finitisation.ecore"/>
+		<epsilon.emf.register file="../../crepe.core.meta/search/search.ecore"/>
+		<epsilon.emf.register file="../../crepe.core.meta/conf/configuration.ecore"/>
+		
+		<epsilon.emf.loadRegisteredMetamodel name="MM" metamodeluri="route"/>
+		
+		<!-- The finitisation and configuration models are created by the script itself, 
+			but we still need to define a reference to the models for Epsilon to use. -->
+		<epsilon.emf.loadModel name="FIN"
+		    modelFile="models/fin.model"
+		    metamodelUri="http://crepe.core/meta/finitisation"
+	        read="false" store="false" />
+		
+		<!-- FIXME: Need to add the Properties driver to Epsilon -->
+		<epsilon.emf.loadModel name="CONF"
+		    modelFile="models/configuration.model"
+		    metamodelUri="http://crepe.core/meta/conf"
+	        read="true" store="false" />
+		
+		<epsilon.emf.loadModel name="MAP"
+		    modelFile="models/uk4cities.model"
+		    metamodelUri="route"
+	        read="true" store="false" />
+		
+		<epsilon.emf.loadModel name="MOD"
+		    modelFile="models/solution.model"
+		    metamodelUri="route"
+	        read="false" store="false" />
+		
+		<epsilon.emf.loadModel name="SEARCH"
+			modelFile="models/search.model"
+	        metamodeluri="http://crepe.core/meta/search"
+	        read="false" store="false"/>
+		
+		<!-- Run experiment -->
+		<epsilon.eol src="routeSearch.eol" taskname="RouteSearch">
+			<model ref="MOD" />
+			<model ref="MAP" />
+			<model ref="MM" />
+			<model ref="FIN" />
+			<model ref="CONF" />
+			<model ref="SEARCH" />
+		</epsilon.eol>
+	</target>
+	
+</project>

@@ -1,0 +1,93 @@
+//import '../util/util.eol';
+
+/**
+ * Initialises the search population based on the configuration parameter "initialisation.type". 
+ *
+ * @requiredVariables: 
+ * 		fitFunctionIsEol (Boolean) - states whether to eval candidates using EOL or JAVA
+ * @returns A Population object for which to start the search from.
+ */
+operation initialise() : SEARCH!Population {
+
+	
+	// Now, initialise!
+	var initType = getConfigurationProperty("population.initialisation.type");
+
+	switch (initType) {
+		case "given": // Assumes a model called POP exists.
+			// Ensure the search model is clean. 
+			if (SEARCH!Search.all.size() > 0) {
+				for (s in SEARCH!Search.all) delete s;
+			}
+			// Create the new search
+			var search = new SEARCH!Search;
+			search.generations.add(POP!Population.all.last());
+		case "random":
+			// Ensure the search model is clean. 
+			if (SEARCH!Search.all.size() > 0) {
+				for (s in SEARCH!Search.all) delete s;
+			}
+			// Create the new search
+			var search = new SEARCH!Search;
+			var population = new SEARCH!Population;
+			search.generations.add(population);
+			
+			var popSize = getConfigurationProperty("population.size").asInteger();
+			population.individuals.addAll(randomlyCreateIndividuals(popSize));
+		case "last": // Nothing to do here. Will use the last generation's population as the starting point.
+	}
+	return SEARCH!Search.all.last().generations.last();
+}
+
+/**
+ * Determines whether any termination criteria is met.
+ *
+ * @returns Whether or not some termination criterion has been satisfied.
+ */
+operation terminate() : Boolean {
+	// Threshold
+	var fitThreshold = getConfigurationProperty("termination.fitnessThreshold").asReal();
+	var fittest = SEARCH!Search.all.last().generations.last().individuals.sortBy(i | i.fitness).first();
+
+	//fittest.fitness.println("Fittest solution: ");
+
+	if (fittest.fitness <= fitThreshold) {
+		'Fitness threshold reached. Terminating'.println();
+		return true;
+	}
+	
+	// Iterations
+	var maxIterations = getConfigurationProperty("termination.iterationsThreshold").asInteger();
+	if (t >= maxIterations) {
+		'Max iterations reached. Terminating.'.println();
+		return true;
+	}
+
+	// TODO: Could possibly delegate to user defined criteria
+	
+	return false;
+}
+
+/**
+ * Evaluates a Population of Individuals by transforming them into their phenotypical
+ * form and calling the fitnessEvaluator. The phenotype is then deleted to save memory.
+ *
+ * @self The Population to evaluate.
+ */
+operation SEARCH!Population evaluate() {
+	for (genotype in self.individuals) {
+		if (genotype.elite) {
+			// TODO: make this a configuration option
+			continue;
+		}
+	
+		var phenotype = genotype.toPhenotype();
+		
+		// Call the fitness function	
+		genotype.fitness = doEvaluateFitness(phenotype).asDouble();
+		genotype.fitnessEvaluated = true; //TODO: This isn't actually used (yet).
+		
+		// Clean up
+		delete phenotype;		
+	}
+}

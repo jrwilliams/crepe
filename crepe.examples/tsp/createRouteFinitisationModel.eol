@@ -1,0 +1,9 @@
+import "../../crepe.core/util/finitisationModelCreationUtil.eol";
+
+var fin = new FIN!MetamodelFinitisation;
+
+fin.rootObject = MM!EClass.all.selectOne(c | c.name == "Route");
+
+fin.finitisations.add(createEObjectFeatureListFinitisation(selectFeatureByName("Stop", "city"), MAP!City.all));
+
+fin.ignores.add(MM!EClass.all.selectOne(c | c.name == "Product"));

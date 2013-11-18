@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="ASCII"?>
+<map:Country xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:map="map" xmi:id="_EvLDAM0wEeKYmasec6TGgQ">
+  <cities xmi:id="_FuiOQM0wEeKYmasec6TGgQ" name="London"/>
+  <cities xmi:id="_HZn3EM0wEeKYmasec6TGgQ" name="York"/>
+  <cities xmi:id="_IQTAYM0wEeKYmasec6TGgQ" name="Cardiff"/>
+  <cities xmi:id="_YXyoYM0wEeKYmasec6TGgQ" name="Wolverhampton"/>
+  <cities xmi:id="_KUwOwM4dEeKyPqjBQEmUrA" name="Oxford"/>
+  <distances xmi:id="_JSA8EM0wEeKYmasec6TGgQ" distance="151" city1="_IQTAYM0wEeKYmasec6TGgQ" city2="_FuiOQM0wEeKYmasec6TGgQ"/>
+  <distances xmi:id="_Jo05kM0wEeKYmasec6TGgQ" distance="217" city1="_FuiOQM0wEeKYmasec6TGgQ" city2="_HZn3EM0wEeKYmasec6TGgQ"/>
+  <distances xmi:id="_JvapwM0wEeKYmasec6TGgQ" distance="250" city1="_HZn3EM0wEeKYmasec6TGgQ" city2="_IQTAYM0wEeKYmasec6TGgQ"/>
+  <distances xmi:id="_cOd_AM0wEeKYmasec6TGgQ" distance="120" city1="_YXyoYM0wEeKYmasec6TGgQ" city2="_IQTAYM0wEeKYmasec6TGgQ"/>
+  <distances xmi:id="_cYnZgM0wEeKYmasec6TGgQ" distance="130" city1="_YXyoYM0wEeKYmasec6TGgQ" city2="_FuiOQM0wEeKYmasec6TGgQ"/>
+  <distances xmi:id="_ciOogM0wEeKYmasec6TGgQ" distance="133" city1="_YXyoYM0wEeKYmasec6TGgQ" city2="_HZn3EM0wEeKYmasec6TGgQ"/>
+  <distances xmi:id="_iRzy4M4fEeKyPqjBQEmUrA" distance="118" city1="_KUwOwM4dEeKyPqjBQEmUrA" city2="_IQTAYM0wEeKYmasec6TGgQ"/>
+  <distances xmi:id="_lmJ4gM4fEeKyPqjBQEmUrA" distance="60" city1="_KUwOwM4dEeKyPqjBQEmUrA" city2="_FuiOQM0wEeKYmasec6TGgQ"/>
+  <distances xmi:id="_lyz0cM4fEeKyPqjBQEmUrA" distance="88" city1="_KUwOwM4dEeKyPqjBQEmUrA" city2="_YXyoYM0wEeKYmasec6TGgQ"/>
+  <distances xmi:id="_l5cn8M4fEeKyPqjBQEmUrA" distance="187" city1="_KUwOwM4dEeKyPqjBQEmUrA" city2="_HZn3EM0wEeKYmasec6TGgQ"/>
+</map:Country>

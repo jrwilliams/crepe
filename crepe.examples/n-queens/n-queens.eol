@@ -1,0 +1,127 @@
+/**
+	An example of using Crepe to solve the N-queens problem.
+
+	Input models:
+		MOD		: Placeholder for the solution (metamodel uri = "Queens"
+		MM		: Queens.ecore
+		FIN		: Placeholder for finitisation model, which is auto-generated.
+		CONF	: Configuration file - gets auto-updated with N
+		SEARCH	: The search model
+*/
+import "../../crepe.core/util/util.eol";
+import "../../crepe.core/util/finitisationModelCreationUtil.eol";
+import '../../crepe.core/search/algs/geneticAlgorithm.eol';
+
+// Define the N in N-Queens
+var n = 8;
+
+// Required utility variables
+var t = 0;
+var random = setupRandomSeed();
+var unassignedReferences;
+var modelObjects;
+var instantiableClasses;
+var objectSegmentMap;
+var featureFeaturePairMap;
+var fitFunctionIsEol = true;
+var featureCollection;
+var maxAllele = n-1;  
+
+// Update configuration: one segment per queen
+setOrCreateConfigurationProperty("population.segments.quantity.max", n);
+setOrCreateConfigurationProperty("population.segments.quantity.min", n);
+setupFinitisationModel(n);
+
+// Only two features are needed
+var numFps = 2;
+//setOrCreateConfigurationProperty("population.segments.featurePairs.quantity.max", numFps);
+//setOrCreateConfigurationProperty("population.segments.featurePairs.quantity.min", numFps);
+
+// Now go
+commence();
+
+// Print and save the fittest solution
+var fittest = SEARCH!Search.all.first().generations.last().individuals.sortBy(i | i.fitness).first();
+fittest.println();
+var fittestPhenotype = fittest.toPhenotype();
+doEvaluateFitness(fittestPhenotype).println("fitness = ");
+MOD.getResource.getContents().clear();
+MOD.getResource.getContents().add(fittestPhenotype);
+MOD.store();
+
+// Pretty print
+fittestPhenotype.prettyPrint();
+
+/**
+	Defines the fitness (to be minimised) as the number of queens who
+	can attack another queen. If a queen is missing a field (e.g. a row 
+	or col value) then extra punishment is added.
+	@param candidate
+*/
+operation doEvaluateFitness(candidate:MM!EObject) : Real {	
+	
+	// Little trick needed to make the candidate conform to the Queens MM
+	MOD.getResource.getContents().clear();
+	MOD.getResource.getContents().add(candidate);
+	
+	// number of non-attacking pairs of queens
+	var numAttackables = 0.0;
+	for (queen in candidate.queens) {
+		// num of queens attackable by current queen
+		numAttackables = numAttackables + candidate.queens.select(q | queen <> q and (q.row == queen.row or q.col == queen.col or isOnSameDiagonal(queen, q))).size();
+
+		// punish if it has not assigned certain attributes
+		if (queen.row == -1) numAttackables = numAttackables + 1;
+		if (queen.col == -1) numAttackables = numAttackables + 1;
+	}
+	
+	return numAttackables.asReal();
+}
+
+/**
+	Determines if two queens are on the same diagonal.
+	@param q1, q2: The queens.
+*/
+operation isOnSameDiagonal(q1 : Any, q2 : Any) : Boolean {
+	var deltaRow = (q1.row - q2.row).abs();
+	var deltaCol = (q1.col - q2.col).abs();
+	
+	return deltaRow == deltaCol;
+}
+
+/**
+	Automatically creates the finitisation model.
+	@param n: number of queens
+*/
+operation setupFinitisationModel(n : Integer) {
+	var fin = new FIN!MetamodelFinitisation;
+	fin.rootObject = MM!EClass.all.selectOne(c | c.name == "Board");
+	
+	// Set the values to be from 0 to n-1
+	fin.finitisations.add(createFeatureListFinitisation(selectFeatureByName("Queen", "row"), Sequence{0..n-1}));
+	fin.finitisations.add(createFeatureListFinitisation(selectFeatureByName("Queen", "col"), Sequence{0..n-1}));
+	
+	// Ignore the Board
+	fin.ignores.add(MM!EClass.all.selectOne(c | c.name == "Board"));
+}
+
+/**
+	Prints a chess board with Xs for queens.
+	@self The chess board to print.
+*/
+operation Board prettyPrint() {
+	var numCols = self.queens.size();
+	
+	for (i in Sequence{0..numCols-1}) {
+		"|".print();
+		for (j in Sequence{0..numCols-1}) {
+			if (self.queens.select(q | q.row == i and q.col == j).size() > 0) {
+				"X".print();	
+			} else {
+				" ".print();
+			}
+			"|".print();
+		}
+		"".println();
+	}
+}
