@@ -31,7 +31,7 @@
 		<epsilon.emf.loadModel name="SEARCH"
 			modelFile="models/search.model"
 	        metamodeluri="http://crepe.core/meta/search"
-	        read="false" store="false"/>
+	        read="false" store="true"/>
 		
 		<!-- Run experiment -->
 		<epsilon.eol src="n-queens.eol" taskname="N-Queens">

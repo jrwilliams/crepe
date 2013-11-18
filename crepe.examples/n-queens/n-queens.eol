@@ -32,11 +32,6 @@ setOrCreateConfigurationProperty("population.segments.quantity.max", n);
 setOrCreateConfigurationProperty("population.segments.quantity.min", n);
 setupFinitisationModel(n);
 
-// Only two features are needed
-var numFps = 2;
-//setOrCreateConfigurationProperty("population.segments.featurePairs.quantity.max", numFps);
-//setOrCreateConfigurationProperty("population.segments.featurePairs.quantity.min", numFps);
-
 // Now go
 commence();
 
@@ -59,7 +54,6 @@ fittestPhenotype.prettyPrint();
 	@param candidate
 */
 operation doEvaluateFitness(candidate:MM!EObject) : Real {	
-	
 	// Little trick needed to make the candidate conform to the Queens MM
 	MOD.getResource.getContents().clear();
 	MOD.getResource.getContents().add(candidate);
