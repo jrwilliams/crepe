@@ -7,6 +7,7 @@
  * 		SEARCH - Individual being evaluated		(http://jw.research.crepe/population or http://jw.research.crepe/search)
  */
 import "../util/finitisationUtil.eol";
+import "../util/util.eol";
 
 // Required fields -- this will need to be global in the EOL file. This is necessary only when 
 // this script is executed directly. If it is called by another, these variables are not created!
@@ -16,7 +17,6 @@ var unassignedReferences;
 var modelObjects;
 var objectSegmentMap;
 var featureFeaturePairMap; // key = self.eClass.name+"-"+feature.name
-var fitFunctionIsEol = false; // true if uses Java.
 
 /**
  * Method used to transform an Individual (genotype) to its phenotypical form. The resulting
@@ -26,22 +26,16 @@ var fitFunctionIsEol = false; // true if uses Java.
  * 			MOD.getResource().getContents().add(phenotype);
  */
 operation SEARCH!Individual toPhenotype() : MM!EObject {
-
-//DEBUG
-//	self.println();
-
-
 	// 0. Ensure a clean run
 	unassignedReferences = new Sequence;
 	modelObjects = new Sequence;
 	objectSegmentMap = new Map;
 	featureFeaturePairMap = new Map;
-	// TODO: This needs extending to only allow classes that can be contained
-	// 		 by the root object.
 	if (instantiableClasses.isUndefined() or instantiableClasses.size() == 0) {
 		instantiableClasses = getInstantiableClasses();
 	}
-	featureCollection = MM!EStructuralFeature.all;// TODO: move to util
+	
+	featureCollection = getAssignableFeatures();
 	
 	// 1. Create the root object
 	var rootClass = getRootClass();
@@ -83,11 +77,34 @@ operation SEARCH!Individual toPhenotype() : MM!EObject {
 		objectSegmentMap.get(o).redundant = false;
 	}
 	
-	// FIXME (27 Jun '13): We need to delete dangling refs.. We used to do that. Why not now? 
-	
-	// 5. Move the model object to MOD
-	//MOD.getResource().getContents().add(rootObject); 
-	// FIXME: not required?? - Create another script for single use, THAT can use the MOD model
+	// 5. Move the model object to MOD and clean up any dangling references
+	// TODO: Currently very inefficient. Re-look at this.
+	MOD.getResource().getContents().add(rootObject);
+
+	var toDelete = new Sequence; 
+	for (o in modelObjects) {
+		if (not MOD.getResource().getAllContents().contains(o)) {
+			toDelete.add(o);
+		}
+	}
+
+	for (o in MOD.getResource().getAllContents()) {
+		for (r in o.eClass().eAllReferences) {
+			var targets = o.eGet(r);
+			
+			if (targets.type() == Sequence) {
+				for (t in targets.iterator()) {
+					if (toDelete.contains(t)) {
+						targets.remove(t);
+					}
+				}
+			} else {
+				if (toDelete.contains(targets)) {
+					o.eSet(r, null);
+				}
+			}
+		}
+	}
 	
 	return rootObject;
 }

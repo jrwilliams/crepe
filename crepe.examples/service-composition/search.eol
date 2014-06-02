@@ -1,0 +1,37 @@
+import "../../crepe.core/util/util.eol";
+import "../../crepe.core/util/finitisationUtil.eol";
+import "../../crepe.core/util/finitisationModelCreationUtil.eol";
+import '../../crepe.core/search/algs/hillClimbing.eol';
+
+// Utility variables
+var t = 0; // iteration counter
+var random = setupRandomSeed();
+var maxAllele = 1000; // TODO: This will be moved to the config at some point
+
+// Necessary for genotype to phenotype mapping
+var unassignedReferences;
+var modelObjects;
+var instantiableClasses;
+var objectSegmentMap;
+var featureFeaturePairMap;
+var featureCollection;
+var fitFunctionIsEol = true;
+
+// Now search
+commence();
+
+// This function is called for every candidate solution examined
+operation doEvaluateFitness(candidate : MM!EObject) : Real {	
+	// The following is not needed for certain, but due to loading metamodels 
+	// reflexively (via the .ecore rather than generated code), it can stop issues arising
+	MOD.getResource.getContents().clear();
+	MOD.getResource.getContents().add(candidate);
+	MOD.store();
+	
+	// TODO: Delegate to the surrogate model for evaluation..
+
+	// Currently the fitness is just the number of objects in the model
+	// The search algorithm will try to minimise this
+	var fitness = MOD.getResource.getAllContents().size().asDouble(); 
+	return fitness;
+}	

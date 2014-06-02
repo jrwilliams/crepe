@@ -41,13 +41,14 @@ operation commence() {
 		for (n in neighbours) {
 			if (n <> candidate) delete n;
 		}
-		candidate.fitness.println(",");
 	}
 	
 }
 
+// TODO: See issue #1
 operation initialise() : SEARCH!Individual {
-	return randomlyCreateIndividuals(1).at(0);
+	var ind = randomlyCreateIndividuals(1).at(0);
+	return ind;
 }
 
 operation SEARCH!Individual createNeighbours() : Sequence {

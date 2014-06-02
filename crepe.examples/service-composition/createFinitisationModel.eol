@@ -1,0 +1,9 @@
+import "../../crepe.core/util/finitisationModelCreationUtil.eol";
+
+var fin = new FIN!MetamodelFinitisation;
+
+// Set the 'root object': the type that contains all other model objects
+fin.rootObject = MM!EClass.all.selectOne(c | c.name == "CompositeApplication");
+
+// Specify any meta-classes that should be ignored (no instances of those types will be created)
+//fin.ignores.add(MM!EClass.all.selectOne(c | c.name == "Product"));

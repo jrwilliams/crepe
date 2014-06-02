@@ -1,47 +1,37 @@
 /**
- * A genetic algorithm for Crepe.
- * 
- * Input models:
- * 		SEARCH - the search model, which stores the generations
- * 		POP (optional) - used to initialise the population
- * 		CONF - configuration
- * 		FIN - Finitisation model
- * 		MM - Metamodel
- * @author: James R. Williams
+ 	A genetic algorithm for Crepe.
+ 
+ 	Input models:
+ 		SEARCH - the search model, which stores the generations
+ 		POP (optional) - used to initialise the population
+ 		CONF - configuration
+ 		FIN - Finitisation model
+ 		MM - Metamodel
+
+	You need to define the following globally:
+		var t = 0; // iteration counter
+		var maxAllele;
+		var unassignedReferences;
+		var modelObjects;
+		var instantiableClasses;
+		var objectSegmentMap;
+		var featureFeaturePairMap;
+ 
+	@author: James R. Williams
  */
 import '../../representation/genotype2phenotype.eol';
 import '../ops/controlOperations.eol';
 import '../ops/geneticOperations.eol';
 
-// utility
-var t = 0; // iteration counter
-//var random = setupRandomSeed();
-var maxAllele = 1000; // TODO: Add to config/determine automatically
-
-// Necessary for genotype to phenotype mapping
-var unassignedReferences;
-var modelObjects;
-var instantiableClasses;
-var objectSegmentMap;
-var featureFeaturePairMap;
-var fitFunctionIsEol = false;
-
 operation commence() {
-	// Now go
 	var population = initialise();
 	population.evaluate();
 	
 	while (not terminate()) {
 		t = t + 1;
-		t.println("Generation #");
-
-		// DEBUG
-//		population.individuals.select(i|i.elite).size().print("#elites in gen (pre breed) " +t+ ": ");
-//		population.individuals.select(i|i.elite).collect(e|e.fitness).println(", fitnesses (pre breed): ");
-		// END DEBUG
+		t.println("Generation #", "LOG");
 
 		population = population.selectAndBreed();
 		population.evaluate();
-		
 	}
 }

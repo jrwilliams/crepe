@@ -1,0 +1,49 @@
+@namespace(
+	uri="http://crepe.examples/service-composition",
+	prefix="composition")
+package composition;
+
+class CompositeApplication {
+	val AbstractPlan abstractPlan;
+	val ConcreteService[*] concreteServices;
+	val Node[*] networkNodes;
+	val User[*] serviceUser;
+	val ConcretePlan[1..*] concretePlans;
+}
+
+class AbstractService {
+	ref ConcreteService[1..*]#abstractService concreteServices;
+}
+
+class AbstractPlan {
+	ref AbstractService start;
+	ref AbstractService end;
+	val AbstractService abstractServices;
+}
+
+class ConcreteService {
+	ref Node providedBy;
+	ref AbstractService#concreteServices abstractService;
+}
+
+class Orchestrator {
+	ref Node deployedOn;
+	ref Orchestrator[0..1] targetOrchestrator;
+	ref AbstractService[1..*] start;
+	ref AbstractService[1..*] abstractServices;
+	ref AbstractService[1..*] end;
+}
+
+class Node {
+	ref ConcreteService providedService;
+}
+
+class User {
+	ref Node hostedOn;
+}
+
+class ConcretePlan {
+	val Orchestrator[1..*] orchestrators;
+	ref Orchestrator start;
+	ref Orchestrator end;
+}

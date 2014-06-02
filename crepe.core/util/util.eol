@@ -1,3 +1,16 @@
+operation Any print(str, level) {
+	if (DEBUG.isDefined()) {
+		if (DEBUG.includes(level)) self.print(str);
+	}
+}
+
+operation Any println(str, level) {
+	if (DEBUG.isDefined()) {
+		if (DEBUG.includes(level)) self.println(str);
+	}
+}
+
+
 /**
  * Grabs the set of instantiable classes. Rules out those who are abstract,
  * interfaces, ignored, children of ignored classes
@@ -13,16 +26,31 @@ operation getInstantiableClasses() : Sequence {
 	
 	// Now find the ignoreds
 	for (c in cs) {
-		if (not c.isIgnored() and not c.isAncestorIgnored()) {
+		if (not c.isIgnored() and not c.isAncestorIgnored()) { //FIXME and isAncestor(rootClass, c)) {
 			instantiable.add(c);
 		}
 	}
 	
 	// Now only get the ones that are childen of the root
-	// TODO !!!!	
+	// TODO - that is the job of isAncestor (commented out above)
 	
 	return instantiable.asSequence();
 }
+
+operation getAssignableFeatures() : Sequence {
+	var assignable = new Sequence;
+	
+	var sfs = MM!EStructuralFeature.all.select(sf | not sf.derived and not sf.unsettable);
+	
+	for (sf in sfs) {
+		if (not sf.isIgnored()) {
+			assignable.add(sf);
+		}
+	}
+	
+	return assignable.asSequence();
+}
+
 
 /** 
  * Currently not used, but possible useful.

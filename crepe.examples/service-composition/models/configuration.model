@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="ASCII"?>
+<conf:Configuration xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:conf="http://crepe.core/meta/conf">
+  <properties name="hillclimb.neighbours.quantity" value="4" />
+  <properties name="termination.iterationsThreshold" value="50"/>
+  <properties name="termination.fitnessThreshold" value="0"/>
+  <properties name="population.size" value="10"/>
+  <properties name="population.initialisation.type" value="random"/>
+  <properties name="population.segments.quantity.max" value="32"/>
+  <properties name="population.segments.quantity.min" value="16"/>
+  <properties name="population.segments.featurePairs.quantity.max" value="12"/>
+  <properties name="population.segments.featurePairs.quantity.min" value="8"/>
+  <properties name="parentPopulation.size" value="8"/>
+  <properties name="parentPopulation.selectionType" value="tournament"/>
+  <properties name="tournamentSize" value="6"/>
+  <properties name="elitePopulation.size" value="2"/>
+  <properties name="elitePopulation.selectionType" value="fittest"/>
+  <properties name="childPopulation.size" value="8"/>
+  <properties name="childPopulation.mutation.type" value="uniform"/>
+  <properties name="childPopulation.mutation.uniform" value="0.1"/>
+  <properties name="childPopulation.mutation.weighted.classBit" value="0.05"/>
+  <properties name="childPopulation.mutation.weighted.featureSelectorBit" value="0.1"/>
+  <properties name="childPopulation.mutation.weighted.featureValueBit" value="0.15"/>
+  <properties name="childPopulation.construct.probability" value="0.0"/>
+  <properties name="childPopulation.destruct.probability" value="0.0"/>
+  <properties name="usePrngSeed" value="false"/>
+  <properties name="prngSeed" value="16421312464"/>
+</conf:Configuration>

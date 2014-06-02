@@ -2,20 +2,6 @@
  *
  */
 operation getRootClass() : MM!EClass {
-//	"ROOT STUFF".println();
-//	var rootClass = FIN!MetamodelFinitisation.all.first().rootObject;
-	
-//	rootClass.type().println("type(): ");
-//	rootClass.getClass().println("getClass(): ");
-//	rootClass.isTypeOf(MM!EClass).println("isTypeOf(MM!EClass): ");
-//	rootClass.println("rootObject: ");
-//	rootClass.eAllContents().println("rootObject.eAllContents(): ");
-	
-//	FIN.owns(rootClass).println("FIN.owns(rootClass): ");
-//	MM.owns(rootClass).println("MM.owns(rootClass): ");
-//	rootClass.owningModel.println("rootClass.owningModel: ");	
-	
-//	"END ROOT STUFF".println();
 	return FIN!MetamodelFinitisation.all.first().rootObject;
 }
 
@@ -36,7 +22,6 @@ operation MM!EClass canInstantiate() : Boolean {
 		
 		for (s in scope) {
 			if (s.max <= numObjectsOfSelfType) {
-			("max scope reached: " + self.name).println();
 				return false;
 			}
 			// TODO minimum scoping (not for here, but it needs doing)
@@ -57,12 +42,10 @@ operation MM!EClass canInstantiate() : Boolean {
  * Checks whether the finitisation model specifies that the
  * EObject should be ignored.
  */
-//operation MM!EObject isIgnored() : Boolean {
-operation Any isIgnored() : Boolean {
+operation MM!EObject isIgnored() : Boolean {
 	if (self.eClass.name == "EGenericType") { //// HACK! Find out why this is doing this!
 		return true;
 	}
-	//self.name.println(FIN!MetamodelFinitisation.all.first().ignores.includes(self) + ": ");
 	if (FIN!MetamodelFinitisation.all.first().ignores.includes(self)) return true;
 	return false;
 }
@@ -96,7 +79,6 @@ operation isFeatureScopeReached(feature : MM!EStructuralFeature, currentSize : I
 			}
 		} 
 	}
-	
 	return false;
 }
 
@@ -104,7 +86,7 @@ operation isFeatureScopeReached(feature : MM!EStructuralFeature, currentSize : I
  *
  */
 //operation getChoicesForFeature(eClass : MM!EClass, feature : MM!EStructuralFeature) : Sequence {
-operation getChoicesForFeature(eClass : Any, feature : Any) : Collection {
+operation getChoicesForFeature(eClass : MM!EClass, feature : MM!EStructuralFeature) : Collection {
 	var choices = new Sequence;
 	
 	if (feature.eType.getInstanceClass() == Boolean or feature.eType.getInstanceClassName() == "boolean") {

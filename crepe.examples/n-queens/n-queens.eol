@@ -27,6 +27,9 @@ var fitFunctionIsEol = true;
 var featureCollection;
 var maxAllele = n-1;  
 
+// Configure the amount of debug information you want to see
+var DEBUG = Sequence{"LOG"}; // Choices: LOG, WARN, DEBUG
+
 // Update configuration: one segment per queen
 setOrCreateConfigurationProperty("population.segments.quantity.max", n);
 setOrCreateConfigurationProperty("population.segments.quantity.min", n);
@@ -39,7 +42,7 @@ commence();
 var fittest = SEARCH!Search.all.first().generations.last().individuals.sortBy(i | i.fitness).first();
 fittest.println();
 var fittestPhenotype = fittest.toPhenotype();
-doEvaluateFitness(fittestPhenotype).println("fitness = ");
+doEvaluateFitness(fittestPhenotype).println("fitness = ", "LOG");
 MOD.getResource.getContents().clear();
 MOD.getResource.getContents().add(fittestPhenotype);
 MOD.store();
@@ -107,15 +110,15 @@ operation Board prettyPrint() {
 	var numCols = self.queens.size();
 	
 	for (i in Sequence{0..numCols-1}) {
-		"|".print();
+		"|".print("","LOG");
 		for (j in Sequence{0..numCols-1}) {
 			if (self.queens.select(q | q.row == i and q.col == j).size() > 0) {
-				"X".print();	
+				"X".print("","LOG");	
 			} else {
-				" ".print();
+				" ".print("","LOG");
 			}
-			"|".print();
+			"|".print("","LOG");
 		}
-		"".println();
+		"".println("","LOG");
 	}
 }

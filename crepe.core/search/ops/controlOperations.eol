@@ -1,4 +1,4 @@
-//import '../util/util.eol';
+import '../../util/util.eol';
 
 /**
  * Initialises the search population based on the configuration parameter "initialisation.type". 
@@ -8,9 +8,6 @@
  * @returns A Population object for which to start the search from.
  */
 operation initialise() : SEARCH!Population {
-
-	
-	// Now, initialise!
 	var initType = getConfigurationProperty("population.initialisation.type");
 
 	switch (initType) {
