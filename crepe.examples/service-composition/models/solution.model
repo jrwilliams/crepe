@@ -1,26 +1,22 @@
 <?xml version="1.0" encoding="ASCII"?>
 <composition:CompositeApplication xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:composition="http://crepe.examples/service-composition">
-  <abstractPlan start="//@abstractPlan/@abstractServices" end="//@abstractPlan/@abstractServices">
-    <abstractServices concreteServices="//@concreteServices.0 //@concreteServices.2 //@concreteServices.1 //@concreteServices.3 //@concreteServices.4"/>
+  <abstractPlan>
+    <abstractServices concreteServices="//@concreteServices.2 //@concreteServices.0 //@concreteServices.1"/>
   </abstractPlan>
-  <concreteServices providedBy="//@networkNodes.0" abstractService="//@abstractPlan/@abstractServices"/>
   <concreteServices providedBy="//@networkNodes.2" abstractService="//@abstractPlan/@abstractServices"/>
-  <concreteServices providedBy="//@networkNodes.1" abstractService="//@abstractPlan/@abstractServices"/>
-  <concreteServices providedBy="//@networkNodes.0" abstractService="//@abstractPlan/@abstractServices"/>
-  <concreteServices providedBy="//@networkNodes.1" abstractService="//@abstractPlan/@abstractServices"/>
-  <networkNodes providedService="//@concreteServices.3"/>
-  <networkNodes providedService="//@concreteServices.2"/>
-  <networkNodes providedService="//@concreteServices.3"/>
-  <serviceUser hostedOn="//@networkNodes.2"/>
-  <serviceUser hostedOn="//@networkNodes.0"/>
+  <concreteServices providedBy="//@networkNodes.2" abstractService="//@abstractPlan/@abstractServices"/>
+  <concreteServices providedBy="//@networkNodes.3" abstractService="//@abstractPlan/@abstractServices"/>
+  <networkNodes providedService="//@concreteServices.1"/>
+  <networkNodes providedService="//@concreteServices.0"/>
+  <networkNodes providedService="//@concreteServices.1"/>
+  <networkNodes providedService="//@concreteServices.0"/>
   <serviceUser hostedOn="//@networkNodes.1"/>
-  <serviceUser hostedOn="//@networkNodes.1"/>
-  <serviceUser hostedOn="//@networkNodes.1"/>
-  <concretePlans start="//@concretePlans.1/@orchestrators.1" end="//@concretePlans.1/@orchestrators.1">
-    <orchestrators deployedOn="//@networkNodes.0" targetOrchestrator="//@concretePlans.0/@orchestrators.0" start="//@abstractPlan/@abstractServices" end="//@abstractPlan/@abstractServices"/>
+  <concretePlans start="//@concretePlans.1/@orchestrators.0" end="//@concretePlans.1/@orchestrators.0">
+    <orchestrators targetOrchestrator="//@concretePlans.1/@orchestrators.1" start="//@abstractPlan/@abstractServices" abstractServices="//@abstractPlan/@abstractServices"/>
+    <orchestrators deployedOn="//@networkNodes.0" targetOrchestrator="//@concretePlans.1/@orchestrators.1" abstractServices="//@abstractPlan/@abstractServices" end="//@abstractPlan/@abstractServices"/>
   </concretePlans>
-  <concretePlans start="//@concretePlans.0/@orchestrators.0" end="//@concretePlans.1/@orchestrators.0">
-    <orchestrators deployedOn="//@networkNodes.1" targetOrchestrator="//@concretePlans.1/@orchestrators.0" start="//@abstractPlan/@abstractServices" abstractServices="//@abstractPlan/@abstractServices" end="//@abstractPlan/@abstractServices"/>
-    <orchestrators deployedOn="//@networkNodes.1" targetOrchestrator="//@concretePlans.1/@orchestrators.1" abstractServices="//@abstractPlan/@abstractServices" end="//@abstractPlan/@abstractServices"/>
+  <concretePlans start="//@concretePlans.1/@orchestrators.0" end="//@concretePlans.1/@orchestrators.0">
+    <orchestrators deployedOn="//@networkNodes.1" targetOrchestrator="//@concretePlans.1/@orchestrators.0" start="//@abstractPlan/@abstractServices" abstractServices="//@abstractPlan/@abstractServices"/>
+    <orchestrators deployedOn="//@networkNodes.2" start="//@abstractPlan/@abstractServices" end="//@abstractPlan/@abstractServices"/>
   </concretePlans>
 </composition:CompositeApplication>

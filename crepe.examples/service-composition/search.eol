@@ -33,5 +33,11 @@ operation doEvaluateFitness(candidate : MM!EObject) : Real {
 	// Currently the fitness is just the number of objects in the model
 	// The search algorithm will try to minimise this
 	var fitness = MOD.getResource.getAllContents().size().asDouble(); 
-	return fitness;
+	
+	// Example of calling out to a Java class to evaluate the fitness
+	var javaFitnessFunction = new Native('crepe.examples.tools.servicecomposition.ExampleTool');
+	var javaFitness = javaFitnessFunction.evaluate(candidate);
+	return javaFitness;
+	
+	//return fitness;
 }	

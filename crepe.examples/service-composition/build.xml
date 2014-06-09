@@ -1,7 +1,6 @@
 <?xml version="1.0"?>
 <project name="crepe.examples.tsp" basedir="." default="run">
 
-	
 	<!-- load Epsilon tasks -->
 	<path id="epsilon-classpath"> 
 		<fileset dir="../../crepe.dependencies/lib/"> 
