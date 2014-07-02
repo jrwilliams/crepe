@@ -134,6 +134,12 @@ operation randomlyCreateIndividuals(popSize : Integer) : Sequence {
 	var minNumSegments = getConfigurationProperty("population.segments.quantity.min").asInteger();
 	var maxNumFps = getConfigurationProperty("population.segments.featurePairs.quantity.max").asInteger();
 	var minNumFps = getConfigurationProperty("population.segments.featurePairs.quantity.min").asInteger();
+	
+	var multiObjective = false;
+	if (hasConfigurationProperty("population.initialisation.multiObjective")) {
+		multiObjective = getConfigurationProperty("population.initialisation.multiObjective");
+	}
+	
 				
 	// Now create random individuals
 	for (j in Sequence{1..popSize}) {
@@ -144,7 +150,11 @@ operation randomlyCreateIndividuals(popSize : Integer) : Sequence {
 			var numFps = random.nextInt(maxNumFps-minNumFps+1) + minNumFps;
 			individual.segments.add(randomlyCreateSegment(numFps, maxAllele));
 		}
-		//pop.individuals.add(individual);
+		
+		if (multiObjective) { // FIXME: I'd rather this wasn't part of an Individual, as its a global contraint on all Individuals
+			individual.isMultiObjective = true;
+		}
+		
 		inds.add(individual);
 	}
 	return inds;

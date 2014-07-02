@@ -81,7 +81,11 @@ operation SEARCH!Population evaluate() {
 		var phenotype = genotype.toPhenotype();
 		
 		// Call the fitness function	
-		genotype.fitness = doEvaluateFitness(phenotype).asDouble();
+		if (genotype.isMultiObjective) {
+			doEvaluateFitness(phenotype);
+		} else {
+			genotype.fitness = doEvaluateFitness(phenotype).asDouble();
+		}
 		genotype.fitnessEvaluated = true; //TODO: This isn't actually used (yet).
 		
 		// Clean up
