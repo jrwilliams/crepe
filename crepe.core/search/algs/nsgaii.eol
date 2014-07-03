@@ -1,0 +1,291 @@
+/**
+ 	Deb's NSGA-II. Based on Luke 2009 and the ECJ source code.
+ 
+ 	Input models:
+ 		SEARCH - the search model, which stores the generations
+ 		POP (optional) - used to initialise the population
+ 		CONF - configuration
+ 		FIN - Finitisation model
+ 		MM - Metamodel
+
+	You need to define the following globally:
+		var t = 0; // iteration counter
+		var maxAllele;
+		var unassignedReferences;
+		var modelObjects;
+		var instantiableClasses;
+		var objectSegmentMap;
+		var featureFeaturePairMap;
+ 
+	@author: James R. Williams
+ */
+import '../../representation/genotype2phenotype.eol';
+import '../ops/controlOperations.eol';
+import '../ops/geneticOperations.eol';
+
+operation commence() {
+	// Assumes archive is the same size as the population
+	var archiveSize = getConfigurationProperty("population.size").asInteger();
+	var archive = new Sequence;
+	var pareto;
+	
+	// Initialisation
+	var population = initialise();
+
+	// The magic		
+	while (not terminate()) {
+		// Evaluation
+		population.evaluate();
+		population.individuals.addAll(archive);
+		population.individuals = population.individuals.asSet().asSequence(); // Yuck
+									// asSet() will have no effect here due to 
+									// object duplication. unless we duplicate the archive ?
+									// Added this into breed(). Needs testing.
+		// Ranking
+		var ranks = partitionIntoRanks(population.individuals.asSequence()); 
+		pareto = ranks.at(0); 
+		archive.clear();
+		
+		// Recompute archive
+		for (front in ranks) {
+			front.computeSparsities();
+			if (archive.size() + front.size() > archiveSize) {
+				while (archive.size() < archiveSize) {
+					archive.add(front.removeAt(0));
+				}
+				break;
+			} else {
+				archive.addAll(front);
+				archive = archive.asSet().asSequence(); //yuck 
+			}
+		} 
+	
+		// Breed
+		population = archive.breed(archiveSize);
+	}
+	
+	// TODO the final result is in 'pareto'/'archive' - what shall we do with it?
+	// For now, print to console for plotting purposes
+	var res = pareto.collect(ind | ind.objectives.score);//.println();
+	var tp = "Pareto front:\n";
+	for (r in res) {
+		for (p in r) {
+			tp = tp + p + ",";
+		}
+		tp = tp + "\n";
+	}
+	tp.println();
+	
+}
+
+operation Sequence breed(popSize : Integer) : SEARCH!Population {
+	// Add to search history model
+	var newPopulation = new SEARCH!Population;
+	SEARCH!Search.all.last().generations.add(newPopulation);
+	
+	var dup = self.duplicate(); // THIS NEEDS TESTING
+
+	// Selection
+	var parents = dup.nonDominatedSparsitySelection(popSize);
+	
+	// Reproduce
+	var children = parents.breedAndAdapt(); 
+	newPopulation.individuals.addAll(children);
+	return newPopulation;
+}
+
+operation terminate() : Boolean {
+	if (t >= getConfigurationProperty("termination.iterationsThreshold").asInteger()) return true;
+	t = t+1;
+	t.println("Iteration #");
+	return false;
+}
+
+operation Sequence nonDominatedSparsitySelection(popSize : Integer) : Sequence {
+	var selection = new Sequence;
+	
+	for (i in Sequence{1..popSize}) {
+		var best = self.at(random.nextInt(self.size()));
+		var tourny = 2;
+		
+		for (i in Sequence{2..tourny}) {
+			var next = self.at(random.nextInt(self.size()));
+			if (next.rank < best.rank) {
+				best = next;
+			} else if (next.rank == best.rank) {
+				if (next.sparsity > best.sparsity) { // TODO: Check whether sparsity is the opposite of distance
+					best = next;
+				}
+			}
+		}
+		selection.add(best);
+	}
+
+	return selection;
+}
+
+operation Sequence computeSparsities() {
+	for (p in self) {
+		p.sparsity = 0.asDouble();
+	}
+	var numObjectives = self.at(0).objectives.size();
+	
+	for (i in Sequence{0..numObjectives-1}) {
+		
+		var sorted = self.sortBy(p1 | 
+			p1.objectives.at(i)
+		);
+		
+		sorted.at(0).sparsity = 99999999.asDouble(); 
+		sorted.at(sorted.size()-1).sparsity = 99999999.asDouble();
+		
+		if (sorted.size() > 2) {
+			for (j in Sequence{1..sorted.size()-2}) {
+				var fj = sorted.at(j).objectives.at(i);
+				var fjplus1 = sorted.at(j+1).objectives.at(i);
+				var fjminus1 = sorted.at(j-1).objectives.at(i); 
+			
+				sorted.at(j).sparsity = (fjplus1 - fjminus1);// / (1-0));// (MAXOBJECTIVE - MINOBJECTIVE); //TODO???
+			}
+		}
+	}
+}
+
+// Uses ECJ's implementation as reference (ec.multiobjective.MultiObjectiveFitness.java)
+operation partitionIntoParetoFront(pop : OrderedSet, front : OrderedSet, nonFront : OrderedSet, rank : Integer) : OrderedSet {
+	front.add(pop.at(0));
+	
+	if (pop.size() == 1) return front;
+	for (i in Sequence{1..pop.size()-1}) {
+		var ind = pop.at(i);
+		
+		var noOneWasBetter : Boolean = true;
+		var frontSize : Integer = front.size();
+		
+		var j = 0;
+		while (j < frontSize) {
+			var frontMember = front.at(j);
+			
+			if (dominates(frontMember, ind)) {
+				nonFront.add(ind);
+				noOneWasBetter = false;
+				break;
+			} else if (dominates(ind, frontMember)){
+				front.remove(frontMember);
+				frontSize = frontSize - 1;
+				j = j - 1;
+				nonFront.add(frontMember);
+			}
+			j = j + 1;
+		}
+		if (noOneWasBetter) {
+			if (front.excludes(ind)) front.add(ind);
+		}
+	} 
+	
+	for (i in front) i.rank = rank;
+	return front;
+}
+
+// Uses ECJ's implementation as reference (ec.multiobjective.MultiObjectiveFitness.java)
+operation partitionIntoRanks(population : Sequence) : Sequence { // of Sequences
+	var workingPop : OrderedSet = population.asOrderedSet();
+	var frontsByRank = new Sequence;
+	
+	var rank = 0;
+	
+	while (workingPop.size() > 0) {
+		var front = new OrderedSet;
+		var nonFront = new OrderedSet;
+		partitionIntoParetoFront(workingPop, front, nonFront, rank);
+		workingPop = nonFront;
+		frontsByRank.add(front.asSequence());
+		rank = rank + 1;
+	} 
+	
+	return frontsByRank;
+}
+
+operation dominates(ind1 : SEARCH!Individual, ind2 : SEARCH!Individual) : Boolean {
+	for (i in Sequence{0..ind1.objectives.size()-1}) { // Assumes same index for each objective.
+		
+		if (ind1.objectives.at(i).minimise) {
+			if (ind1.objectives.at(i).score > ind2.objectives.at(i).score) { // ASSUMES MINIMISATION - could add to conf
+				return false;
+			}
+		} else {
+			if (ind1.objectives.at(i).score < ind2.objectives.at(i).score) { // ASSUMES MINIMISATION - could add to conf
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
+/* Below here is not used */
+
+operation selectParents(fronts : Sequence, size : Integer) : Sequence {
+	for (front in fronts) {
+	front.println();
+		front.calculateCrowdingDistance();
+	}
+	var offspring = new Sequence;
+	var lastFront = 0;
+	
+	for (front in fronts) {
+		if (offspring.size() + front.size() > size) break;
+		offspring.addAll(front);
+		lastFront = lastFront + 1;
+	}
+	
+	var remaining = size - offspring.size();
+	if (remaining > 0) {
+		// TODO select some from the remaining.
+	}
+	return offspring;
+}
+
+
+operation SEARCH!Population fastNonDominatedSort() : Sequence {
+	var fronts = new Sequence;
+	
+	
+	for (ind in self.individuals) {
+		ind.objectives.println("ind:");
+		ind.~domCount = 0;
+		ind.~domSet = new Sequence;
+		 
+		for (ind2 in self.individuals) {
+			if (dominates(ind, ind2)) {
+				ind.~domSet.add(ind2);
+			} else {
+				ind.~domCount = ind.~domCount + 1;
+			}
+		}
+		if (ind.~domCount == 0) {
+			ind.~rank = 0;
+			if (fronts.size() == 0) fronts.add(new Sequence); // Pareto. TODO: What happens if there is no Pareto front?
+			fronts.at(0).add(ind); 
+		}
+	}
+	
+	var curr = 0;
+	
+	while (curr < fronts.size()) {
+		var nextFront = new Sequence;
+		
+		for (ind in fronts.at(curr)) {
+			for (ind2 in ind.~domSet) {
+				ind2.~domCount = ind2.~domCount - 1;
+				if (ind2.~domCount == 0) {
+					ind2.~rank = curr + 1;
+					nextFront.add(ind2);
+				} 
+			}
+		}
+		curr = curr + 1;
+		if (nextFront.size() > 0) fronts.add(nextFront);
+	}
+	return fronts;
+}
+
