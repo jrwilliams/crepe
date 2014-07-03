@@ -1,0 +1,18 @@
+@namespace(
+	uri="http://crepe.core/meta/search/mo",
+	prefix="mosearch")
+package mosearch;
+
+import "http://crepe.core/meta/search";
+
+class MOIndividual extends search.Individual {
+	attr boolean isMultiObjective = true;
+	attr int rank;
+	attr double sparsity;
+	val Objective[*] objectives;
+}
+
+class Objective {
+	attr boolean minimise = true;
+	attr double score = -1;
+}

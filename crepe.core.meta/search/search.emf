@@ -12,8 +12,6 @@ class Population {
 
 class Individual {
    attr double fitness = -1;
-   attr boolean isMultiObjective = false;
-   attr double[*] objectives;
    attr boolean fitnessEvaluated = false;
    attr boolean mutated = false;
    attr boolean elite = false;
