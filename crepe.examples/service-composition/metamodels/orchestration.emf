@@ -1,0 +1,53 @@
+@namespace(uri="http://OrchestrationMM/1.0", prefix="OrchestrationMM")
+package OrchestrationMM;
+
+class CompositeApplication {
+  val ConcretePlan[+] concretePlans;
+  val AbstractPlan[1] abstractPlan;
+  val ConcreteService[*] concreteServices;
+  val Node[*] networkNodes;
+  val User[*] serviceUser;
+}
+
+class ConcretePlan {
+  ref Orchestrator[1] start;
+  ref Orchestrator[1] end;
+  val Orchestrator[+] orchestrators;
+}
+
+class Node {
+  ref ConcreteService[1] providedService;
+  attr int ID = 0;
+}
+
+class Orchestrator {
+  ref Orchestrator targetOrchestrator;
+  ref AbstractService[+] abstractServices;
+  ref AbstractService[+] start;
+  ref AbstractService[+] end;
+  ref ConcreteService[+] concreteServices;
+  ref Node[1] deployedOn;
+}
+
+class ConcreteService {
+  ref AbstractService[1]#concreteServices abstractService;
+  ref Node[1] providedBy;
+  attr int ID;
+}
+
+class AbstractPlan {
+  val AbstractService[*] abstractServices;
+  ref AbstractService[1] start;
+  ref AbstractService[1] end;
+}
+
+class AbstractService {
+  ref ConcreteService[+]#abstractService concreteServices;
+  ref AbstractService[*] targetServices;
+  attr int ID = 0;
+}
+
+class User {
+  ref Node[1] hostedOn;
+}
+

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="ASCII"?>
+<finitisation:MetamodelFinitisation xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:finitisation="http://crepe.core/meta/finitisation">
+  <rootObject href="http://OrchestrationMM/1.0#//CompositeApplication"/>
+  <finitisations xsi:type="finitisation:EObjectFeatureListFinitisation">
+    <feature xsi:type="ecore:EReference" href="http://OrchestrationMM/1.0#//ConcreteService/providedBy"/>
+    <list href="input.model#//@networkNodes.0"/>
+    <list href="input.model#//@networkNodes.1"/>
+    <list href="input.model#//@networkNodes.2"/>
+    <list href="input.model#//@networkNodes.3"/>
+    <list href="input.model#//@networkNodes.4"/>
+    <list href="input.model#//@networkNodes.5"/>
+    <list href="input.model#//@networkNodes.6"/>
+    <list href="input.model#//@networkNodes.7"/>
+    <list href="input.model#//@networkNodes.8"/>
+    <list href="input.model#//@networkNodes.9"/>
+  </finitisations>
+  <finitisations xsi:type="finitisation:EObjectFeatureListFinitisation">
+    <feature xsi:type="ecore:EReference" href="http://OrchestrationMM/1.0#//ConcreteService/abstractService"/>
+    <list href="input.model#//@abstractPlan/@abstractServices.0"/>
+    <list href="input.model#//@abstractPlan/@abstractServices.1"/>
+    <list href="input.model#//@abstractPlan/@abstractServices.2"/>
+    <list href="input.model#//@abstractPlan/@abstractServices.3"/>
+    <list href="input.model#//@abstractPlan/@abstractServices.4"/>
+  </finitisations>
+  <finitisations xsi:type="finitisation:EObjectFeatureListFinitisation">
+    <feature xsi:type="ecore:EReference" href="http://OrchestrationMM/1.0#//Orchestrator/deployedOn"/>
+    <list href="input.model#//@networkNodes.0"/>
+    <list href="input.model#//@networkNodes.1"/>
+    <list href="input.model#//@networkNodes.2"/>
+    <list href="input.model#//@networkNodes.3"/>
+    <list href="input.model#//@networkNodes.4"/>
+    <list href="input.model#//@networkNodes.5"/>
+    <list href="input.model#//@networkNodes.6"/>
+    <list href="input.model#//@networkNodes.7"/>
+    <list href="input.model#//@networkNodes.8"/>
+    <list href="input.model#//@networkNodes.9"/>
+  </finitisations>
+  <finitisations xsi:type="finitisation:EObjectFeatureListFinitisation">
+    <feature xsi:type="ecore:EReference" href="http://OrchestrationMM/1.0#//Orchestrator/start"/>
+    <list href="input.model#//@abstractPlan/@abstractServices.0"/>
+    <list href="input.model#//@abstractPlan/@abstractServices.1"/>
+    <list href="input.model#//@abstractPlan/@abstractServices.2"/>
+    <list href="input.model#//@abstractPlan/@abstractServices.3"/>
+    <list href="input.model#//@abstractPlan/@abstractServices.4"/>
+  </finitisations>
+  <finitisations xsi:type="finitisation:EObjectFeatureListFinitisation">
+    <feature xsi:type="ecore:EReference" href="http://OrchestrationMM/1.0#//Orchestrator/abstractServices"/>
+    <list href="input.model#//@abstractPlan/@abstractServices.0"/>
+    <list href="input.model#//@abstractPlan/@abstractServices.1"/>
+    <list href="input.model#//@abstractPlan/@abstractServices.2"/>
+    <list href="input.model#//@abstractPlan/@abstractServices.3"/>
+    <list href="input.model#//@abstractPlan/@abstractServices.4"/>
+  </finitisations>
+  <finitisations xsi:type="finitisation:EObjectFeatureListFinitisation">
+    <feature xsi:type="ecore:EReference" href="http://OrchestrationMM/1.0#//Orchestrator/end"/>
+    <list href="input.model#//@abstractPlan/@abstractServices.0"/>
+    <list href="input.model#//@abstractPlan/@abstractServices.1"/>
+    <list href="input.model#//@abstractPlan/@abstractServices.2"/>
+    <list href="input.model#//@abstractPlan/@abstractServices.3"/>
+    <list href="input.model#//@abstractPlan/@abstractServices.4"/>
+  </finitisations>
+  <ignores href="http://OrchestrationMM/1.0#//CompositeApplication"/>
+  <ignores href="http://OrchestrationMM/1.0#//Node"/>
+  <ignores href="http://OrchestrationMM/1.0#//ConcreteService"/>
+  <ignores href="http://OrchestrationMM/1.0#//AbstractPlan"/>
+  <ignores href="http://OrchestrationMM/1.0#//AbstractService"/>
+  <ignores href="http://OrchestrationMM/1.0#//User"/>
+</finitisation:MetamodelFinitisation>

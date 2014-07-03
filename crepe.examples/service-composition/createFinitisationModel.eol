@@ -1,3 +1,9 @@
+/*
+	Input models: 
+		INPUT : the partial solution.
+		MM : the metamodel to finitise
+*/
+
 import "../../crepe.core/util/finitisationModelCreationUtil.eol";
 
 var fin = new FIN!MetamodelFinitisation;
@@ -6,4 +12,30 @@ var fin = new FIN!MetamodelFinitisation;
 fin.rootObject = MM!EClass.all.selectOne(c | c.name == "CompositeApplication");
 
 // Specify any meta-classes that should be ignored (no instances of those types will be created)
-//fin.ignores.add(MM!EClass.all.selectOne(c | c.name == "Product"));
+fin.ignores.add(MM!EClass.all.selectOne(c | c.name == "CompositeApplication"));
+fin.ignores.add(MM!EClass.all.selectOne(c | c.name == "Node"));
+fin.ignores.add(MM!EClass.all.selectOne(c | c.name == "ConcreteService"));
+fin.ignores.add(MM!EClass.all.selectOne(c | c.name == "AbstractPlan"));
+fin.ignores.add(MM!EClass.all.selectOne(c | c.name == "AbstractService"));
+fin.ignores.add(MM!EClass.all.selectOne(c | c.name == "User"));
+
+INPUT.getResource().getContents().size().println();
+
+
+fin.finitisations.add(createEObjectFeatureListFinitisation(selectFeatureByName("ConcreteService", "providedBy"), INPUT!Node.all));
+fin.finitisations.add(createEObjectFeatureListFinitisation(selectFeatureByName("ConcreteService", "abstractService"), INPUT!AbstractService.all));
+
+fin.finitisations.add(createEObjectFeatureListFinitisation(selectFeatureByName("Orchestrator", "deployedOn"), INPUT!Node.all));
+fin.finitisations.add(createEObjectFeatureListFinitisation(selectFeatureByName("Orchestrator", "start"), INPUT!AbstractService.all));
+fin.finitisations.add(createEObjectFeatureListFinitisation(selectFeatureByName("Orchestrator", "abstractServices"), INPUT!AbstractService.all));
+fin.finitisations.add(createEObjectFeatureListFinitisation(selectFeatureByName("Orchestrator", "end"), INPUT!AbstractService.all));
+
+
+
+// TODO:
+// - The start and end fields in Orchestrator relate to ones in the abstractServices
+//   field? If so, then we would probably want to finities those fields and manually 
+//   add them at the beginning of the fitness function.
+// - Need to look at specifying the genotype sizes appropriately
+// - In the fitness function, we may need to move the ConcretePlans into the input model 
+//   and pass that for evaluation. Then destroy all ConcretePlans after evaluation.

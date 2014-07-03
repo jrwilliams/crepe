@@ -28,6 +28,8 @@ operation doEvaluateFitness(candidate : MM!EObject) : Real {
 	MOD.getResource.getContents().add(candidate);
 	MOD.store();
 	
+	candidate.println();
+	
 	// TODO: Delegate to the surrogate model for evaluation..
 
 	// Currently the fitness is just the number of objects in the model

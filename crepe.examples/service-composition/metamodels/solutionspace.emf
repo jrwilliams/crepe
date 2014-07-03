@@ -1,0 +1,27 @@
+@namespace(
+	uri="http://crepe.examples/service-composition-solution",
+	prefix="composition-solution")
+package orchestrationSolution;
+
+import "http://OrchestrationMM/1.0";
+
+class Solution {
+	
+	val OrchestrationMM.ConcretePlan[*] concretePlans;
+	
+//	val OrchestrationMM.ConcreteService[*] concreteServices;
+//	val OrchestrationMM.Orchestrator[*] orchestrators;
+}
+
+//class ConcreteService {
+//	ref OrchestrationMM.Node providedBy;
+//	ref OrchestrationMM.AbstractService abstractService;
+//}
+
+//class Orchestrator {
+//	ref OrchestrationMM.Node deployedOn;
+//	ref Orchestrator[0..1] targetOrchestrator;
+//	ref OrchestrationMM.AbstractService[1..*] start;
+//	ref OrchestrationMM.AbstractService[1..*] abstractServices;
+//	ref OrchestrationMM.AbstractService[1..*] end;
+//}
