@@ -204,30 +204,19 @@ operation Sequence duplicate() : Sequence {
 /**
  * 
  */
-operation SEARCH!MOIndividual duplicate() : SEARCH!MOIndividual {
-	var newIndividual = new SEARCH!MOIndividual;
+operation SEARCH!Individual duplicate() : SEARCH!Individual {
+	var newIndividual;
 	
-	newIndividual.isMultiObjective = self.isMultiObjective;
-	newIndividual.fitness = self.fitness;
-	newIndividual.fitnessEvaluated = self.fitnessEvaluated;
-	newIndividual.rank = self.rank;
-	newIndividual.sparsity = self.sparsity;
-	
-	for (s in self.segments) {
-		newIndividual.segments.add(s.duplicate());
+	if (hasConfigurationProperty("population.initialisation.multiObjective")
+			and getConfigurationProperty("population.initialisation.multiObjective").asBoolean()) {
+		newIndividual = new SEARCH!MOIndividual;
+		newIndividual.rank = self.rank;
+		newIndividual.sparsity = self.sparsity;
+		newIndividual.isMultiObjective = self.isMultiObjective;
+	} else {
+		newIndividual = new SEARCH!Individual;
 	}
 	
-	return newIndividual;
-}
-
-
-/**
- * 
- */
-operation SEARCH!Individual duplicate() : SEARCH!Individual {
-	var newIndividual = new SEARCH!Individual;
-	
-	newIndividual.isMultiObjective = self.isMultiObjective;
 	newIndividual.fitness = self.fitness;
 	newIndividual.fitnessEvaluated = self.fitnessEvaluated;
 	

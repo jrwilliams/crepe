@@ -81,7 +81,8 @@ operation SEARCH!Population evaluate() {
 		var phenotype = genotype.toPhenotype();
 		
 		// Call the fitness function	
-		if (genotype.isMultiObjective) {
+		if (hasConfigurationProperty("population.initialisation.multiObjective")
+			and getConfigurationProperty("population.initialisation.multiObjective").asBoolean()) {
 			var objs = doEvaluateFitness(phenotype); // TODO: Should check that these are Objectives
 			genotype.objectives.addAll(objs);
 		} else {
