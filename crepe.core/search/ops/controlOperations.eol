@@ -82,7 +82,8 @@ operation SEARCH!Population evaluate() {
 		
 		// Call the fitness function	
 		if (genotype.isMultiObjective) {
-			doEvaluateFitness(phenotype);
+			var objs = doEvaluateFitness(phenotype); // TODO: Should check that these are Objectives
+			genotype.objectives.addAll(objs);
 		} else {
 			genotype.fitness = doEvaluateFitness(phenotype).asDouble();
 		}

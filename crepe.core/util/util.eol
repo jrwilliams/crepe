@@ -137,14 +137,17 @@ operation randomlyCreateIndividuals(popSize : Integer) : Sequence {
 	
 	var multiObjective = false;
 	if (hasConfigurationProperty("population.initialisation.multiObjective")) {
-		multiObjective = getConfigurationProperty("population.initialisation.multiObjective");
+		multiObjective = getConfigurationProperty("population.initialisation.multiObjective").asBoolean();
 	}
-	
 				
 	// Now create random individuals
 	for (j in Sequence{1..popSize}) {
-		var individual = new SEARCH!Individual;
-		
+		var individual;
+		if (multiObjective) {
+			individual = new SEARCH!MOIndividual;
+		} else {
+			individual = new SEARCH!Individual;
+		}
 		var numSegments = random.nextInt(maxNumSegments-minNumSegments+1) + minNumSegments;
 		for (i in Sequence{1..numSegments}) { 
 			var numFps = random.nextInt(maxNumFps-minNumFps+1) + minNumFps;
@@ -201,9 +204,30 @@ operation Sequence duplicate() : Sequence {
 /**
  * 
  */
+operation SEARCH!MOIndividual duplicate() : SEARCH!MOIndividual {
+	var newIndividual = new SEARCH!MOIndividual;
+	
+	newIndividual.isMultiObjective = self.isMultiObjective;
+	newIndividual.fitness = self.fitness;
+	newIndividual.fitnessEvaluated = self.fitnessEvaluated;
+	newIndividual.rank = self.rank;
+	newIndividual.sparsity = self.sparsity;
+	
+	for (s in self.segments) {
+		newIndividual.segments.add(s.duplicate());
+	}
+	
+	return newIndividual;
+}
+
+
+/**
+ * 
+ */
 operation SEARCH!Individual duplicate() : SEARCH!Individual {
 	var newIndividual = new SEARCH!Individual;
 	
+	newIndividual.isMultiObjective = self.isMultiObjective;
 	newIndividual.fitness = self.fitness;
 	newIndividual.fitnessEvaluated = self.fitnessEvaluated;
 	
