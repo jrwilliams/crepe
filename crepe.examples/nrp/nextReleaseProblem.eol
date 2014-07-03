@@ -1,0 +1,75 @@
+/**
+	An example of using Crepe to solve the Multi-Objective Next Release Problem.
+
+	Input models:
+		INPUT	: The concrete instance of the NRP	
+		MOD		: Placeholder for the solution (metamodel uri = "NextReleaseProblem"
+		MM		: NextReleaseProblemSolution
+		FIN		: Placeholder for finitisation model, which is auto-generated.
+		CONF	: Configuration file
+		SEARCH	: The search model
+*/
+import "../../crepe.core/util/util.eol";
+import "../../crepe.core/util/finitisationModelCreationUtil.eol";
+import '../../crepe.core/search/algs/nsgaii.eol';
+
+// Required utility variables
+var t = 0;
+var random = setupRandomSeed();
+var unassignedReferences;
+var modelObjects;
+var instantiableClasses;
+var objectSegmentMap;
+var featureFeaturePairMap;
+var fitFunctionIsEol = true;
+var featureCollection;
+var maxAllele = 100;  
+
+// Configure the amount of debug information you want to see
+var DEBUG = Sequence{"LOG"}; // Choices: LOG, WARN, DEBUG
+
+// Now go
+commence();
+
+/**
+	@param candidate - a RequirementSelection object
+*/
+operation doEvaluateFitness(candidate:MM!EObject) : Sequence {	
+	// Little trick needed to make the candidate conform to the Queens MM
+	MOD.getResource.getContents().clear();
+	MOD.getResource.getContents().add(candidate);
+	
+	// Maximise
+	var score = candidate.requirements.score();
+	
+	// Minimise
+	var cost = candidate.requirements.cost();
+	
+	// Create objectives (TODO: We can make a utility method for this)
+	var o1 = new SEARCH!Objective;
+	o1.minimise = false;
+	o1.score = score.asDouble();
+	
+	var o2 = new SEARCH!Objective;
+	o2.minimise = true;
+	o2.score = cost.asDouble();
+	
+	return Sequence{o1, o2};
+}
+
+operation MOD!RequirementSelection score() : Integer {
+	var score = 0;
+	for (r in self.requirements) {
+		var cds = NRP!CustomerDesire.all.select(cr | cr.requirement == r);
+		score = score + cds.collect(cd | cd.importance).sum();
+	}
+	return score;
+}
+
+operation MOD!RequirementSelection cost() : Integer {
+	var cost = 0;
+	for (r in self.requirements) {
+		cost = cost + r.cost;
+	}
+	return cost;
+}

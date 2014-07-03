@@ -1,0 +1,34 @@
+
+// Utility
+var random = new Native("java.util.Random");
+
+// Container
+var nrp = new NRP!NRP;
+
+// Create some customers
+var c1 = new NRP!Customer;
+var c2 = new NRP!Customer;
+var c3 = new NRP!Customer;
+c1.importance = 1; c2.importance = 2; c3.importance = 3;
+nrp.customers.addAll(Sequence{c1,c2,c3});
+
+// Create some requirements
+var r1 = new NRP!Requirement;
+var r2 = new NRP!Requirement;
+var r3 = new NRP!Requirement;
+var r4 = new NRP!Requirement;
+var r5 = new NRP!Requirement;
+r1.cost = 2; r2.cost = 1; r3.cost = 4; r4.cost = 1; r5.cost = 5;
+nrp.requirements.addAll(Sequence{r1,r2,r3,r4,r5});
+
+// Now assign random weights 
+for (c in Sequence{c1,c2,c3}) {
+
+	for (r in Sequence{r1,r2,r3,r4,r5}) {
+		var cr = new NRP!CustomerDesire;
+		cr.customer = c;
+		cr.requirement = r;
+		cr.importance = random.nextInt(10);
+		nrp.customerDesires.add(cr);
+	}
+}

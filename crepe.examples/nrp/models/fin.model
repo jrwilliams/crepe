@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="ASCII"?>
+<finitisation:MetamodelFinitisation xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:finitisation="http://crepe.core/meta/finitisation">
+  <rootObject href="NextReleaseProblemSolution#//NRPSolution"/>
+  <finitisations xsi:type="finitisation:EObjectFeatureListFinitisation">
+    <feature xsi:type="ecore:EReference" href="NextReleaseProblemSolution#//RequirementSelection/requirements"/>
+    <list href="input.model#//@requirements.0"/>
+    <list href="input.model#//@requirements.1"/>
+    <list href="input.model#//@requirements.2"/>
+    <list href="input.model#//@requirements.3"/>
+    <list href="input.model#//@requirements.4"/>
+  </finitisations>
+  <ignores href="NextReleaseProblemSolution#//NRPSolution"/>
+</finitisation:MetamodelFinitisation>

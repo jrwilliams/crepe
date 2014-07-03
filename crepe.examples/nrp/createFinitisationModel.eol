@@ -1,0 +1,18 @@
+/*
+	Input models: 
+		INPUT : the partial solution.
+		MM : the metamodel to finitise
+*/
+
+import "../../crepe.core/util/finitisationModelCreationUtil.eol";
+
+var fin = new FIN!MetamodelFinitisation;
+
+// Set the 'root object': the type that contains all other model objects
+fin.rootObject = MM!EClass.all.selectOne(c | c.name == "NRPSolution");
+
+// Specify any meta-classes that should be ignored (no instances of those types will be created)
+fin.ignores.add(MM!EClass.all.selectOne(c | c.name == "NRPSolution"));
+
+// Assign the requirements from the input model
+fin.finitisations.add(createEObjectFeatureListFinitisation(selectFeatureByName("RequirementSelection", "requirements"), NRP!Requirement.all));

@@ -1,0 +1,12 @@
+@namespace(uri="NextReleaseProblemSolution", prefix="NextReleaseProblemSolution")
+package NextReleaseProblemSolution;
+
+import "NextReleaseProblem"; 
+
+class NRPSolution {
+   val RequirementSelection requirements;
+}
+
+class RequirementSelection {
+	ref NextReleaseProblem.Requirement[*] requirements;
+}
