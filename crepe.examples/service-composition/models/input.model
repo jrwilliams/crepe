@@ -1,109 +1,26 @@
 <?xml version="1.0" encoding="ASCII"?>
-<OrchestrationMM:CompositeApplication
-    xmi:version="2.0"
-    xmlns:xmi="http://www.omg.org/XMI"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:OrchestrationMM="http://OrchestrationMM/1.0"
-    xsi:schemaLocation="http://OrchestrationMM/1.0 OrchestrationMM.ecore">
-  <concretePlans>
-    <orchestrators
-        abstractServices="//@abstractPlan/@abstractServices.0 //@abstractPlan/@abstractServices.1 //@abstractPlan/@abstractServices.2"
-        concreteServices="//@concreteServices.0 //@concreteServices.2 //@concreteServices.4"
-        deployedOn="//@networkNodes.0"/>
-    <orchestrators
-        abstractServices="//@abstractPlan/@abstractServices.3 //@abstractPlan/@abstractServices.4"
-        concreteServices="//@concreteServices.6 //@concreteServices.8"
-        deployedOn="//@networkNodes.9"/>
-  </concretePlans>
-  <abstractPlan>
-    <abstractServices
-        concreteServices="//@concreteServices.0 //@concreteServices.1"
-        targetServices="//@abstractPlan/@abstractServices.1"
-        ID="1"/>
-    <abstractServices
-        concreteServices="//@concreteServices.2 //@concreteServices.3"
-        targetServices="//@abstractPlan/@abstractServices.2"
-        ID="2"/>
-    <abstractServices
-        concreteServices="//@concreteServices.4 //@concreteServices.5"
-        targetServices="//@abstractPlan/@abstractServices.3"
-        ID="3"/>
-    <abstractServices
-        concreteServices="//@concreteServices.6 //@concreteServices.7"
-        targetServices="//@abstractPlan/@abstractServices.4"
-        ID="4"/>
-    <abstractServices
-        concreteServices="//@concreteServices.8 //@concreteServices.9"
-        ID="5"/>
-  </abstractPlan>
-  <concreteServices
-      abstractService="//@abstractPlan/@abstractServices.0"
-      providedBy="//@networkNodes.0"
-      ID="1"/>
-  <concreteServices
-      abstractService="//@abstractPlan/@abstractServices.0"
-      providedBy="//@networkNodes.1"
-      ID="2"/>
-  <concreteServices
-      abstractService="//@abstractPlan/@abstractServices.1"
-      providedBy="//@networkNodes.2"
-      ID="3"/>
-  <concreteServices
-      abstractService="//@abstractPlan/@abstractServices.1"
-      providedBy="//@networkNodes.3"
-      ID="4"/>
-  <concreteServices
-      abstractService="//@abstractPlan/@abstractServices.2"
-      providedBy="//@networkNodes.4"
-      ID="5"/>
-  <concreteServices
-      abstractService="//@abstractPlan/@abstractServices.2"
-      providedBy="//@networkNodes.5"
-      ID="6"/>
-  <concreteServices
-      abstractService="//@abstractPlan/@abstractServices.3"
-      providedBy="//@networkNodes.6"
-      ID="7"/>
-  <concreteServices
-      abstractService="//@abstractPlan/@abstractServices.3"
-      providedBy="//@networkNodes.7"
-      ID="8"/>
-  <concreteServices
-      abstractService="//@abstractPlan/@abstractServices.4"
-      providedBy="//@networkNodes.8"
-      ID="9"/>
-  <concreteServices
-      abstractService="//@abstractPlan/@abstractServices.4"
-      providedBy="//@networkNodes.9"
-      ID="10"/>
-  <networkNodes
-      providedService="//@concreteServices.0"
-      ID="1"/>
-  <networkNodes
-      providedService="//@concreteServices.1"
-      ID="2"/>
-  <networkNodes
-      providedService="//@concreteServices.2"
-      ID="3"/>
-  <networkNodes
-      providedService="//@concreteServices.3"
-      ID="4"/>
-  <networkNodes
-      providedService="//@concreteServices.4"
-      ID="5"/>
-  <networkNodes
-      providedService="//@concreteServices.5"
-      ID="6"/>
-  <networkNodes
-      providedService="//@concreteServices.6"
-      ID="7"/>
-  <networkNodes
-      providedService="//@concreteServices.7"
-      ID="8"/>
-  <networkNodes
-      providedService="//@concreteServices.8"
-      ID="9"/>
-  <networkNodes
-      providedService="//@concreteServices.9"
-      ID="10"/>
-</OrchestrationMM:CompositeApplication>
+<NextReleaseProblem:NRP xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:NextReleaseProblem="NextReleaseProblem">
+  <customers importance="1" desires="//@customerDesires.0 //@customerDesires.1 //@customerDesires.2 //@customerDesires.3 //@customerDesires.4"/>
+  <customers importance="2" desires="//@customerDesires.5 //@customerDesires.6 //@customerDesires.7 //@customerDesires.8 //@customerDesires.9"/>
+  <customers importance="3" desires="//@customerDesires.10 //@customerDesires.11 //@customerDesires.12 //@customerDesires.13 //@customerDesires.14"/>
+  <requirements cost="2" desires="//@customerDesires.0 //@customerDesires.5 //@customerDesires.10"/>
+  <requirements cost="1" desires="//@customerDesires.1 //@customerDesires.6 //@customerDesires.11"/>
+  <requirements cost="4" desires="//@customerDesires.2 //@customerDesires.7 //@customerDesires.12"/>
+  <requirements cost="1" desires="//@customerDesires.3 //@customerDesires.8 //@customerDesires.13"/>
+  <requirements cost="5" desires="//@customerDesires.4 //@customerDesires.9 //@customerDesires.14"/>
+  <customerDesires customer="//@customers.0" requirement="//@requirements.0" importance="3"/>
+  <customerDesires customer="//@customers.0" requirement="//@requirements.1" importance="7"/>
+  <customerDesires customer="//@customers.0" requirement="//@requirements.2" importance="7"/>
+  <customerDesires customer="//@customers.0" requirement="//@requirements.3" importance="1"/>
+  <customerDesires customer="//@customers.0" requirement="//@requirements.4" importance="9"/>
+  <customerDesires customer="//@customers.1" requirement="//@requirements.0" importance="4"/>
+  <customerDesires customer="//@customers.1" requirement="//@requirements.1" importance="9"/>
+  <customerDesires customer="//@customers.1" requirement="//@requirements.2" importance="3"/>
+  <customerDesires customer="//@customers.1" requirement="//@requirements.3" importance="9"/>
+  <customerDesires customer="//@customers.1" requirement="//@requirements.4" importance="9"/>
+  <customerDesires customer="//@customers.2" requirement="//@requirements.0" importance="2"/>
+  <customerDesires customer="//@customers.2" requirement="//@requirements.1"/>
+  <customerDesires customer="//@customers.2" requirement="//@requirements.2" importance="4"/>
+  <customerDesires customer="//@customers.2" requirement="//@requirements.3" importance="6"/>
+  <customerDesires customer="//@customers.2" requirement="//@requirements.4" importance="2"/>
+</NextReleaseProblem:NRP>

@@ -1,109 +1,20 @@
 <?xml version="1.0" encoding="ASCII"?>
-<OrchestrationMM:CompositeApplication xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:OrchestrationMM="http://OrchestrationMM/1.0">
-  <concretePlans start="//@concretePlans.7/@orchestrators.0" end="//@concretePlans.9/@orchestrators.0"/>
-  <concretePlans start="//@concretePlans.9/@orchestrators.0" end="//@concretePlans.8/@orchestrators.1"/>
-  <concretePlans start="//@concretePlans.5/@orchestrators.0" end="//@concretePlans.11/@orchestrators.0"/>
-  <concretePlans start="//@concretePlans.10/@orchestrators.2" end="//@concretePlans.12/@orchestrators.0"/>
-  <concretePlans start="//@concretePlans.12/@orchestrators.1" end="//@concretePlans.10/@orchestrators.1"/>
-  <concretePlans start="//@concretePlans.9/@orchestrators.0" end="//@concretePlans.11/@orchestrators.0">
-    <orchestrators targetOrchestrator="//@concretePlans.8/@orchestrators.0">
-      <abstractServices href="input.model#//@abstractPlan/@abstractServices.4"/>
-      <abstractServices href="input.model#//@abstractPlan/@abstractServices.1"/>
-      <end href="input.model#//@abstractPlan/@abstractServices.1"/>
-      <end href="input.model#//@abstractPlan/@abstractServices.4"/>
-      <end href="input.model#//@abstractPlan/@abstractServices.0"/>
-      <deployedOn href="input.model#//@networkNodes.4"/>
-    </orchestrators>
-  </concretePlans>
-  <concretePlans start="//@concretePlans.10/@orchestrators.2" end="//@concretePlans.7/@orchestrators.0"/>
-  <concretePlans start="//@concretePlans.11/@orchestrators.0" end="//@concretePlans.9/@orchestrators.1">
+<OrchestrationMM:CompositeApplication xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:OrchestrationMM="OrchestrationMM">
+  <concretePlans end="//@concretePlans/@orchestrators.0">
     <orchestrators>
-      <abstractServices href="input.model#//@abstractPlan/@abstractServices.0"/>
-      <start href="input.model#//@abstractPlan/@abstractServices.0"/>
-      <end href="input.model#//@abstractPlan/@abstractServices.3"/>
-      <end href="input.model#//@abstractPlan/@abstractServices.0"/>
-      <deployedOn href="input.model#//@networkNodes.0"/>
-    </orchestrators>
-  </concretePlans>
-  <concretePlans start="//@concretePlans.12/@orchestrators.1" end="//@concretePlans.9/@orchestrators.0">
-    <orchestrators targetOrchestrator="//@concretePlans.11/@orchestrators.0">
-      <abstractServices href="input.model#//@abstractPlan/@abstractServices.2"/>
-      <abstractServices href="input.model#//@abstractPlan/@abstractServices.3"/>
-      <start href="input.model#//@abstractPlan/@abstractServices.3"/>
-      <start href="input.model#//@abstractPlan/@abstractServices.4"/>
-      <end href="input.model#//@abstractPlan/@abstractServices.2"/>
-      <deployedOn href="input.model#//@networkNodes.8"/>
-    </orchestrators>
-    <orchestrators targetOrchestrator="//@concretePlans.9/@orchestrators.1">
-      <abstractServices href="input.model#//@abstractPlan/@abstractServices.0"/>
-      <abstractServices href="input.model#//@abstractPlan/@abstractServices.3"/>
-      <abstractServices href="input.model#//@abstractPlan/@abstractServices.2"/>
-      <end href="input.model#//@abstractPlan/@abstractServices.3"/>
-      <end href="input.model#//@abstractPlan/@abstractServices.2"/>
-      <deployedOn href="input.model#//@networkNodes.1"/>
-    </orchestrators>
-  </concretePlans>
-  <concretePlans start="//@concretePlans.12/@orchestrators.1" end="//@concretePlans.9/@orchestrators.0">
-    <orchestrators targetOrchestrator="//@concretePlans.10/@orchestrators.0">
-      <abstractServices href="input.model#//@abstractPlan/@abstractServices.4"/>
-      <start href="input.model#//@abstractPlan/@abstractServices.1"/>
-      <end href="input.model#//@abstractPlan/@abstractServices.3"/>
-      <deployedOn href="input.model#//@networkNodes.1"/>
+      <abstractServices href="input2.model#//@abstractPlan/@abstractServices.2"/>
+      <start href="input2.model#//@abstractPlan/@abstractServices.4"/>
+      <start href="input2.model#//@abstractPlan/@abstractServices.3"/>
+      <end href="input2.model#//@abstractPlan/@abstractServices.1"/>
+      <deployedOn href="input2.model#//@networkNodes.5"/>
     </orchestrators>
     <orchestrators>
-      <abstractServices href="input.model#//@abstractPlan/@abstractServices.2"/>
-      <abstractServices href="input.model#//@abstractPlan/@abstractServices.1"/>
-      <start href="input.model#//@abstractPlan/@abstractServices.0"/>
-      <start href="input.model#//@abstractPlan/@abstractServices.1"/>
-      <end href="input.model#//@abstractPlan/@abstractServices.1"/>
-      <end href="input.model#//@abstractPlan/@abstractServices.4"/>
-      <deployedOn href="input.model#//@networkNodes.8"/>
-    </orchestrators>
-  </concretePlans>
-  <concretePlans start="//@concretePlans.12/@orchestrators.0" end="//@concretePlans.8/@orchestrators.1">
-    <orchestrators targetOrchestrator="//@concretePlans.5/@orchestrators.0">
-      <abstractServices href="input.model#//@abstractPlan/@abstractServices.4"/>
-      <start href="input.model#//@abstractPlan/@abstractServices.0"/>
-      <start href="input.model#//@abstractPlan/@abstractServices.1"/>
-      <end href="input.model#//@abstractPlan/@abstractServices.2"/>
-      <end href="input.model#//@abstractPlan/@abstractServices.3"/>
-      <end href="input.model#//@abstractPlan/@abstractServices.0"/>
-    </orchestrators>
-    <orchestrators targetOrchestrator="//@concretePlans.10/@orchestrators.1">
-      <abstractServices href="input.model#//@abstractPlan/@abstractServices.2"/>
-      <abstractServices href="input.model#//@abstractPlan/@abstractServices.1"/>
-      <start href="input.model#//@abstractPlan/@abstractServices.3"/>
-      <deployedOn href="input.model#//@networkNodes.1"/>
-    </orchestrators>
-    <orchestrators targetOrchestrator="//@concretePlans.10/@orchestrators.0">
-      <abstractServices href="input.model#//@abstractPlan/@abstractServices.1"/>
-      <end href="input.model#//@abstractPlan/@abstractServices.4"/>
-      <deployedOn href="input.model#//@networkNodes.6"/>
-    </orchestrators>
-  </concretePlans>
-  <concretePlans start="//@concretePlans.8/@orchestrators.1" end="//@concretePlans.10/@orchestrators.2">
-    <orchestrators targetOrchestrator="//@concretePlans.10/@orchestrators.2">
-      <abstractServices href="input.model#//@abstractPlan/@abstractServices.4"/>
-      <abstractServices href="input.model#//@abstractPlan/@abstractServices.0"/>
-      <start href="input.model#//@abstractPlan/@abstractServices.0"/>
-      <end href="input.model#//@abstractPlan/@abstractServices.4"/>
-      <deployedOn href="input.model#//@networkNodes.1"/>
-    </orchestrators>
-  </concretePlans>
-  <concretePlans start="//@concretePlans.7/@orchestrators.0" end="//@concretePlans.11/@orchestrators.0">
-    <orchestrators targetOrchestrator="//@concretePlans.11/@orchestrators.0">
-      <abstractServices href="input.model#//@abstractPlan/@abstractServices.0"/>
-      <start href="input.model#//@abstractPlan/@abstractServices.1"/>
-      <end href="input.model#//@abstractPlan/@abstractServices.0"/>
-      <deployedOn href="input.model#//@networkNodes.9"/>
-    </orchestrators>
-    <orchestrators>
-      <abstractServices href="input.model#//@abstractPlan/@abstractServices.3"/>
-      <abstractServices href="input.model#//@abstractPlan/@abstractServices.2"/>
-      <abstractServices href="input.model#//@abstractPlan/@abstractServices.4"/>
-      <start href="input.model#//@abstractPlan/@abstractServices.0"/>
-      <end href="input.model#//@abstractPlan/@abstractServices.2"/>
-      <deployedOn href="input.model#//@networkNodes.5"/>
+      <abstractServices href="input2.model#//@abstractPlan/@abstractServices.0"/>
+      <start href="input2.model#//@abstractPlan/@abstractServices.0"/>
+      <start href="input2.model#//@abstractPlan/@abstractServices.1"/>
+      <end href="input2.model#//@abstractPlan/@abstractServices.4"/>
+      <end href="input2.model#//@abstractPlan/@abstractServices.2"/>
+      <end href="input2.model#//@abstractPlan/@abstractServices.3"/>
     </orchestrators>
   </concretePlans>
 </OrchestrationMM:CompositeApplication>

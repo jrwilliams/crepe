@@ -15,13 +15,12 @@
 	
 	<target name="run">
 		<!-- Load models -->	
-		<epsilon.emf.register file="metamodels/orchestration.ecore"/>
-		<epsilon.emf.register file="metamodels/solutionspace.ecore"/>
+		<epsilon.emf.register file="metamodels/OrchestrationMM.ecore"/>
 		<epsilon.emf.register file="../../crepe.core.meta/finitisation/finitisation.ecore"/>
 		<epsilon.emf.register file="../../crepe.core.meta/search/search.ecore"/>
 		<epsilon.emf.register file="../../crepe.core.meta/conf/configuration.ecore"/>
 		
-		<epsilon.emf.loadRegisteredMetamodel name="MM" metamodeluri="http://OrchestrationMM/1.0"/>
+		<epsilon.emf.loadRegisteredMetamodel name="MM" metamodeluri="OrchestrationMM"/>
 		
 		<!-- The finitisation and configuration models are created by the script itself, 
 			but we still need to define a reference to the models for Epsilon to use. -->
@@ -31,8 +30,8 @@
 	        read="false" store="false" />
 		
 		<epsilon.emf.loadModel name="INPUT"
-		    modelFile="models/input.model"
-		    metamodelUri="http://OrchestrationMM/1.0"
+		    modelFile="models/input2.model"
+		    metamodelUri="OrchestrationMM"
 	        read="true" store="false" />
 		
 		<epsilon.emf.loadModel name="CONF"
@@ -42,7 +41,7 @@
 		
 		<epsilon.emf.loadModel name="MOD"
 		    modelFile="models/solution.model"
-		    metamodelUri="http://OrchestrationMM/1.0"
+		    metamodelUri="OrchestrationMM"
 	        read="false" store="false" />
 		
 		<epsilon.emf.loadModel name="SEARCH"
@@ -59,6 +58,7 @@
 		
 		<!-- Run experiment -->
 		<epsilon.eol src="search.eol" taskname="Search">
+			<model ref="INPUT" />
 			<model ref="MOD" />
 			<model ref="MM" />
 			<model ref="FIN" />
