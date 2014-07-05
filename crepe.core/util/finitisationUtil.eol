@@ -86,17 +86,30 @@ operation isFeatureScopeReached(feature : MM!EStructuralFeature, currentSize : I
  *
  */
 //operation getChoicesForFeature(eClass : MM!EClass, feature : MM!EStructuralFeature) : Sequence {
-operation getChoicesForFeature(eClass : MM!EClass, feature : MM!EStructuralFeature) : Collection {
+operation getChoicesForFeature(object : MOD!EObject, eClass : MM!EClass, feature : MM!EStructuralFeature) : Collection {
+	
+	// Delegate to user-defined function
+	MOD.getResource.getContents().add(object);			// Needed to let the user access properties on the object
+	var c = getFinitisation(object, eClass, feature);
+	MOD.getResource.getContents().remove(object);		// Because the object may be redundant. It would get re-added later if needed
+	
+	if (c <> null) {
+		return c;
+	}
+	
+	// No user defined function, so usual finitisations.
 	var choices = new Sequence;
 	
+	// Booleans
 	if (feature.eType.getInstanceClass() == Boolean or feature.eType.getInstanceClassName() == "boolean") {
 		choices.add(true);
 		choices.add(false);
 		return choices.asSequence();
-	} else if (feature.eType.isTypeOf(MM!EEnum)) {
+	} else if (feature.eType.isTypeOf(MM!EEnum)) { // Enums
 		return feature.eType.eLiterals.asSequence();
 	}
 	
+	// Finitisation models
 	var fins = FIN!FeatureFinitisation.all.select(f|f.feature == feature and (f.parentClass == eClass or f.parentClass == null));
 	
 	// P2G fix - cannot match on the objects
@@ -131,6 +144,16 @@ operation getChoicesForFeature(eClass : MM!EClass, feature : MM!EStructuralFeatu
 	}
 	
 	return choices.asSequence(); // TODO: original version adds some redundancy here.
+}
+
+/**
+ * Empty method, to be overridden by users.
+ * @param object : the owning object.
+ * @param eClass : the owning object's eClass.
+ * @param feature : the feature to be assigned in the object.
+ */
+operation getFinitisation(object : MOD!EObject, eClass : MM!EClass, feature : MM!EStructuralFeature) : Sequence { 
+	return null;
 }
 
 operation createRange(type : String, first, last, step: Real): Sequence {

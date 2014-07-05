@@ -148,7 +148,7 @@ operation MM!EObject assignFeature(fp : SEARCH!FeaturePair) {
 	}
 
 	// Select all possibilities
-	var choices = getChoicesForFeature(self.eClass, feature);
+	var choices = getChoicesForFeature(self, self.eClass, feature);
 
 	// Now select and assign the feature
 	if (feature.isTypeOf(MM!EAttribute)) {
