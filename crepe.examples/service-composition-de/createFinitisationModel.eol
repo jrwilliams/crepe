@@ -9,47 +9,27 @@ import "../../crepe.core/util/finitisationModelCreationUtil.eol";
 var fin = new FIN!MetamodelFinitisation;
 
 // Set the 'root object': the type that contains all other model objects
-fin.rootObject = MM!EClass.all.selectOne(c | c.name == "CompositeApplication");
+fin.rootObject = MM!EClass.all.selectOne(c | c.name == "ConcretePlan");
 
 // Specify any meta-classes that should be ignored (no instances of those types will be created)
 fin.ignores.add(MM!EClass.all.selectOne(c | c.name == "CompositeApplication"));
 fin.ignores.add(MM!EClass.all.selectOne(c | c.name == "Node"));
+fin.ignores.add(MM!EClass.all.selectOne(c | c.name == "ConcretePlan")); // Assumes only one concrete plan per individual
 fin.ignores.add(MM!EClass.all.selectOne(c | c.name == "ConcreteService"));
 fin.ignores.add(MM!EClass.all.selectOne(c | c.name == "AbstractPlan"));
 fin.ignores.add(MM!EClass.all.selectOne(c | c.name == "AbstractService"));
 fin.ignores.add(MM!EClass.all.selectOne(c | c.name == "User"));
-
-INPUT.getResource().getContents().size().println();
-
-
-fin.finitisations.add(createEObjectFeatureListFinitisation(selectFeatureByName("ConcreteService", "providedBy"), INPUT!Node.all));
-fin.finitisations.add(createEObjectFeatureListFinitisation(selectFeatureByName("ConcreteService", "abstractService"), INPUT!AbstractService.all));
-
-fin.finitisations.add(createEObjectFeatureListFinitisation(selectFeatureByName("Orchestrator", "deployedOn"), INPUT!Node.all));
-
+fin.ignores.add(selectFeatureByName("ConcretePlan", "start"));
+fin.ignores.add(selectFeatureByName("ConcretePlan", "end"));
 fin.ignores.add(selectFeatureByName("Orchestrator", "targetOrchestrator"));
 fin.ignores.add(selectFeatureByName("Orchestrator", "start"));
 fin.ignores.add(selectFeatureByName("Orchestrator", "end"));
 
-//fin.finitisations.add(createEObjectFeatureListFinitisation(selectFeatureByName("Orchestrator", "start"), INPUT!AbstractService.all));
-//fin.finitisations.add(createEObjectFeatureListFinitisation(selectFeatureByName("Orchestrator", "abstractServices"), INPUT!AbstractService.all));
-//fin.finitisations.add(createEObjectFeatureListFinitisation(selectFeatureByName("Orchestrator", "concreteServices"), INPUT!ConcreteService.all));
-//fin.finitisations.add(createEObjectFeatureListFinitisation(selectFeatureByName("Orchestrator", "end"), INPUT!AbstractService.all));
+// This isn't actually needed because we finitise it in code.
+fin.finitisations.add(createEObjectFeatureListFinitisation(selectFeatureByName("Orchestrator", "deployedOn"), INPUT!Node.all));
 
+// Scope orchestrators and plans things
 var sc = new FIN!ScopeFinitisation;
 sc.object = MM!EClass.all.selectOne(c | c.name == "Orchestrator");
 sc.max = INPUT!AbstractService.all.size();
 fin.finitisations.add(sc);
-
-var sc2 = new FIN!ScopeFinitisation;
-sc2.object = MM!EClass.all.selectOne(c | c.name == "ConcretePlan");
-sc2.max = 1;
-fin.finitisations.add(sc2);
-
-// TODO:
-// - The start and end fields in Orchestrator relate to ones in the abstractServices
-//   field? If so, then we would probably want to finities those fields and manually 
-//   add them at the beginning of the fitness function.
-// - Need to look at specifying the genotype sizes appropriately
-// - In the fitness function, we may need to move the ConcretePlans into the input model 
-//   and pass that for evaluation. Then destroy all ConcretePlans after evaluation.

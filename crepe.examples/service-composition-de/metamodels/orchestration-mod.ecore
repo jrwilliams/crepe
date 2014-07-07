@@ -12,12 +12,12 @@
         eType="#//Node" containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="serviceUser" upperBound="-1"
         eType="#//User" containment="true"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="orchestrators" upperBound="-1"
-        eType="#//Orchestrator" containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="ConcretePlan">
     <eStructuralFeatures xsi:type="ecore:EReference" name="start" lowerBound="1" eType="#//Orchestrator"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="end" lowerBound="1" eType="#//Orchestrator"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="orchestrators" lowerBound="1"
+        upperBound="-1" eType="#//Orchestrator" containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Node">
     <eStructuralFeatures xsi:type="ecore:EReference" name="providedService" lowerBound="1"

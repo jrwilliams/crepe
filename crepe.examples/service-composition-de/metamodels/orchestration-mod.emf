@@ -7,14 +7,12 @@ class CompositeApplication {
   val ConcreteService[*] concreteServices;
   val Node[*] networkNodes;
   val User[*] serviceUser;
-  
-  val Orchestrator[*] orchestrators;
 }
 
 class ConcretePlan {
   ref Orchestrator[1] start;
   ref Orchestrator[1] end;
- // val Orchestrator[+] orchestrators;
+  val Orchestrator[+] orchestrators;
 }
 
 class Node {
@@ -24,11 +22,9 @@ class Node {
 
 class Orchestrator {
   ref Orchestrator targetOrchestrator;
-  //ref AbstractService[+] abstractServices;
   val AbsConSatisfaction[+]#orchestrator absConSats;
   ref AbstractService[+] start;
   ref AbstractService[+] end;
-//  ref ConcreteService[+] concreteServices;
   ref Node[1] deployedOn;
 }
 

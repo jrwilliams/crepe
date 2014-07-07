@@ -1,101 +1,6 @@
 <?xml version="1.0" encoding="ASCII"?>
 <finitisation:MetamodelFinitisation xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:finitisation="http://crepe.core/meta/finitisation">
-  <rootObject href="http://OrchestrationMM/1.0#//CompositeApplication"/>
-  <finitisations xsi:type="finitisation:EObjectFeatureListFinitisation">
-    <feature xsi:type="ecore:EReference" href="http://OrchestrationMM/1.0#//ConcreteService/providedBy"/>
-    <list href="input2.model#//@networkNodes.0"/>
-    <list href="input2.model#//@networkNodes.1"/>
-    <list href="input2.model#//@networkNodes.2"/>
-    <list href="input2.model#//@networkNodes.3"/>
-    <list href="input2.model#//@networkNodes.4"/>
-    <list href="input2.model#//@networkNodes.5"/>
-    <list href="input2.model#//@networkNodes.6"/>
-    <list href="input2.model#//@networkNodes.7"/>
-    <list href="input2.model#//@networkNodes.8"/>
-    <list href="input2.model#//@networkNodes.9"/>
-    <list href="input2.model#//@networkNodes.10"/>
-    <list href="input2.model#//@networkNodes.11"/>
-    <list href="input2.model#//@networkNodes.12"/>
-    <list href="input2.model#//@networkNodes.13"/>
-    <list href="input2.model#//@networkNodes.14"/>
-    <list href="input2.model#//@networkNodes.15"/>
-    <list href="input2.model#//@networkNodes.16"/>
-    <list href="input2.model#//@networkNodes.17"/>
-    <list href="input2.model#//@networkNodes.18"/>
-    <list href="input2.model#//@networkNodes.19"/>
-    <list href="input2.model#//@networkNodes.20"/>
-    <list href="input2.model#//@networkNodes.21"/>
-    <list href="input2.model#//@networkNodes.22"/>
-    <list href="input2.model#//@networkNodes.23"/>
-    <list href="input2.model#//@networkNodes.24"/>
-    <list href="input2.model#//@networkNodes.25"/>
-    <list href="input2.model#//@networkNodes.26"/>
-    <list href="input2.model#//@networkNodes.27"/>
-    <list href="input2.model#//@networkNodes.28"/>
-    <list href="input2.model#//@networkNodes.29"/>
-    <list href="input2.model#//@networkNodes.30"/>
-    <list href="input2.model#//@networkNodes.31"/>
-    <list href="input2.model#//@networkNodes.32"/>
-    <list href="input2.model#//@networkNodes.33"/>
-    <list href="input2.model#//@networkNodes.34"/>
-    <list href="input2.model#//@networkNodes.35"/>
-    <list href="input2.model#//@networkNodes.36"/>
-    <list href="input2.model#//@networkNodes.37"/>
-    <list href="input2.model#//@networkNodes.38"/>
-    <list href="input2.model#//@networkNodes.39"/>
-    <list href="input2.model#//@networkNodes.40"/>
-    <list href="input2.model#//@networkNodes.41"/>
-    <list href="input2.model#//@networkNodes.42"/>
-    <list href="input2.model#//@networkNodes.43"/>
-    <list href="input2.model#//@networkNodes.44"/>
-    <list href="input2.model#//@networkNodes.45"/>
-    <list href="input2.model#//@networkNodes.46"/>
-    <list href="input2.model#//@networkNodes.47"/>
-    <list href="input2.model#//@networkNodes.48"/>
-    <list href="input2.model#//@networkNodes.49"/>
-    <list href="input2.model#//@networkNodes.50"/>
-    <list href="input2.model#//@networkNodes.51"/>
-    <list href="input2.model#//@networkNodes.52"/>
-    <list href="input2.model#//@networkNodes.53"/>
-    <list href="input2.model#//@networkNodes.54"/>
-    <list href="input2.model#//@networkNodes.55"/>
-    <list href="input2.model#//@networkNodes.56"/>
-    <list href="input2.model#//@networkNodes.57"/>
-    <list href="input2.model#//@networkNodes.58"/>
-    <list href="input2.model#//@networkNodes.59"/>
-    <list href="input2.model#//@networkNodes.60"/>
-    <list href="input2.model#//@networkNodes.61"/>
-    <list href="input2.model#//@networkNodes.62"/>
-    <list href="input2.model#//@networkNodes.63"/>
-    <list href="input2.model#//@networkNodes.64"/>
-    <list href="input2.model#//@networkNodes.65"/>
-    <list href="input2.model#//@networkNodes.66"/>
-    <list href="input2.model#//@networkNodes.67"/>
-    <list href="input2.model#//@networkNodes.68"/>
-    <list href="input2.model#//@networkNodes.69"/>
-    <list href="input2.model#//@networkNodes.70"/>
-    <list href="input2.model#//@networkNodes.71"/>
-    <list href="input2.model#//@networkNodes.72"/>
-    <list href="input2.model#//@networkNodes.73"/>
-    <list href="input2.model#//@networkNodes.74"/>
-    <list href="input2.model#//@networkNodes.75"/>
-    <list href="input2.model#//@networkNodes.76"/>
-    <list href="input2.model#//@networkNodes.77"/>
-    <list href="input2.model#//@networkNodes.78"/>
-    <list href="input2.model#//@networkNodes.79"/>
-    <list href="input2.model#//@networkNodes.80"/>
-    <list href="input2.model#//@networkNodes.81"/>
-    <list href="input2.model#//@networkNodes.82"/>
-    <list href="input2.model#//@networkNodes.83"/>
-  </finitisations>
-  <finitisations xsi:type="finitisation:EObjectFeatureListFinitisation">
-    <feature xsi:type="ecore:EReference" href="http://OrchestrationMM/1.0#//ConcreteService/abstractService"/>
-    <list href="input2.model#//@abstractPlan/@abstractServices.0"/>
-    <list href="input2.model#//@abstractPlan/@abstractServices.1"/>
-    <list href="input2.model#//@abstractPlan/@abstractServices.2"/>
-    <list href="input2.model#//@abstractPlan/@abstractServices.3"/>
-    <list href="input2.model#//@abstractPlan/@abstractServices.4"/>
-  </finitisations>
+  <rootObject href="http://OrchestrationMM/1.0#//ConcretePlan"/>
   <finitisations xsi:type="finitisation:EObjectFeatureListFinitisation">
     <feature xsi:type="ecore:EReference" href="http://OrchestrationMM/1.0#//Orchestrator/deployedOn"/>
     <list href="input2.model#//@networkNodes.0"/>
@@ -186,15 +91,15 @@
   <finitisations xsi:type="finitisation:ScopeFinitisation" max="5">
     <object href="http://OrchestrationMM/1.0#//Orchestrator"/>
   </finitisations>
-  <finitisations xsi:type="finitisation:ScopeFinitisation" max="1">
-    <object href="http://OrchestrationMM/1.0#//ConcretePlan"/>
-  </finitisations>
   <ignores href="http://OrchestrationMM/1.0#//CompositeApplication"/>
   <ignores href="http://OrchestrationMM/1.0#//Node"/>
+  <ignores href="http://OrchestrationMM/1.0#//ConcretePlan"/>
   <ignores href="http://OrchestrationMM/1.0#//ConcreteService"/>
   <ignores href="http://OrchestrationMM/1.0#//AbstractPlan"/>
   <ignores href="http://OrchestrationMM/1.0#//AbstractService"/>
   <ignores href="http://OrchestrationMM/1.0#//User"/>
+  <ignores href="http://OrchestrationMM/1.0#//ConcretePlan/start"/>
+  <ignores href="http://OrchestrationMM/1.0#//ConcretePlan/end"/>
   <ignores href="http://OrchestrationMM/1.0#//Orchestrator/targetOrchestrator"/>
   <ignores href="http://OrchestrationMM/1.0#//Orchestrator/start"/>
   <ignores href="http://OrchestrationMM/1.0#//Orchestrator/end"/>

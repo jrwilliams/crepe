@@ -42,32 +42,6 @@ for (i in Sequence{1..totalRuns}) {
 /**
 	@param candidate - a RequirementSelection object
 */
-operation doEvaluateFitness(candidate:MM!EObject) : Sequence {	
-	// Little trick needed to make the candidate conform to the Queens MM
-//	MOD.getResource.getContents().clear();
-//	MOD.getResource.getContents().add(candidate);
-//	MOD.store();	
-
-	//candidate.prettyPrint();
-
-	//for (plan in MOD!ConcretePlan.all) {
-	//	"Plan = ".println();
-	//	for (orchestrator in MOD!Orchestrator.all) {
-	//		orchestrator.println();	
-	//		var node := MOD!Node;
-	//		node = orchestrator.deployedOn;
-	//		node.println();
-	//		node.ID.asInteger().println();
-	//		node.ID.println("Orchestrator: ");
-	//	}
-	//}
- 	//
-	
-	//var candidatePhenotype = candidate.toPhenotype();
-	//candidatePhenotype.println();
-	// Pretty print
-	candidate.prettyPrint();
-	
 	// Things to do:
 	// 1. Assign the start/end of all Orchestrators
 	// 2. Possibly assign the deployedOn field
@@ -75,6 +49,47 @@ operation doEvaluateFitness(candidate:MM!EObject) : Sequence {
 	// Remove all invalid Orchestrators / Satisfactions
 	// Update the INPUT mod for evaluation.
 	
+operation doEvaluateFitness(candidate:MM!EObject) : Sequence {	
+	// Clean up any invalid orchestrators/absConSats
+ 	var orchsToRemove = new Sequence;
+ 	for (orch in candidate.orchestrators) {
+	 	var acsToRemove = new Sequence;
+ 		for (acs in orch.absConSats) {
+ 			if (acs.abstractService.isUndefined()) acsToRemove.add(acs);
+ 		}
+ 		orch.absConSats.removeAll(acsToRemove);
+ 		if (orch.absConSats.size() == 0) orchsToRemove.add(orch);
+ 	}
+ 	candidate.orchestrators.remove(orchsToRemove);
+
+	// If any of the ASs have had a CS assigned, pick the first CS. 	
+	for (acs in candidate.orchestrators.collect(o | o.absConSats).flatten().select(acs | acs.concreteService.isUndefined())) {
+		acs.concreteService = acs.abstractService.concreteServices.first();
+	}
+	
+	// Check that all ASs are represented
+	for (abs in INPUT!AbstractService.all) {
+		var a = candidate.orchestrators.collect(o | o.absConSats).flatten().select(a | a == abs);
+		if (a.isUndefined()) {
+			("Missing concrete service for abstract service with ID = " + abs.ID).errln();
+		}
+	}
+	
+	candidate.prettyPrint();
+	
+	//TODO: Dionysios:
+	// 1) Do we need to assign Orchestrator.start and Orchestrator.end?
+	// 2) Do we need to assign ConcretePlan.start and ConcretePlan.end?
+	// All of these references will be empty at the point of evaluation.
+	// 3) In my experiments we _never_ got an invalid model. But you may need to check
+	// that all abstract services are represented.
+	// Besides that I THINK all should be working...
+
+	// Now copy the concretePlan into the INPUT model for evaluation
+	INPUT!CompositeApplication.all.first().concretePlans.clear();
+	INPUT!CompositeApplication.all.first().concretePlans.add(candidate);
+	
+	// TODO: delegate to real fitness function.
 	
 	// Maximise
 	var score = 1;
@@ -91,6 +106,10 @@ operation doEvaluateFitness(candidate:MM!EObject) : Sequence {
 	o2.minimise = true;
 	o2.score = cost.asDouble();
 	
+	// Now reset the INPUT model
+	INPUT!CompositeApplication.all.first().concretePlans.clear();
+	
+	// and return the fitness
 	return Sequence{o1, o2};
 }
 
@@ -98,10 +117,13 @@ operation doEvaluateFitness(candidate:MM!EObject) : Sequence {
 
 operation getFinitisation(object : MOD!EObject, eClass : Any, feature : MM!EStructuralFeature) : Sequence { 
 
-
 	if (object.isTypeOf(MOD!Orchestrator) and feature.name == "absConSats") {
 		return new Sequence;
-		
+	} else if (object.isTypeOf(MOD!Orchestrator) and feature.name == "deployedOn") {
+		var currNodes = MOD!Orchestrator.all.collect(o | o.deployedOn);
+		var allNodes = INPUT!Node.all.asSequence();
+		allNodes.remove(currNodes);
+		return allNodes;
 	} else if (object.isTypeOf(MOD!AbsConSatisfaction) and feature.name == "orchestrator") {
 		if (object.orchestrator.isDefined()) return new Sequence;
 		return MOD!Orchestrator.all;
@@ -112,25 +134,26 @@ operation getFinitisation(object : MOD!EObject, eClass : Any, feature : MM!EStru
 		if (object.orchestrator.isUndefined()) return new Sequence;
 		
 		var acs = object.orchestrator.absConSats;
-		acs.size().println("ACS: ");
 		if (acs.size() == 0) {
 			var maxAS = MOD!AbsConSatisfaction.all.collect(a | abstractService.ID).max();
 			if (maxAS == INPUT!AbstractService.all.size()) return new Sequence;
 			return INPUT!AbstractService.all.selectOne(a | a.ID == (maxAS+1)).asSequence().println("sdksdjfnsjdfnksdjbfksjfna:");//.println("ln120: ");
 		} else {
+			// Actually. Because this method can ONLY exist IF the object has the orchestrator reference set. This branch will ALWAYS be taken.
+			// The above branch can probably be removed
+			var max = object.orchestrator.absConSats.select(a | a.abstractService <> null).collect(a | a.abstractService.ID).max(); // likely to be zero initially
+
+			if (max == 0) { // I.e. empty.
+				var maxInModel = MOD!AbsConSatisfaction.all.select(a | a.abstractService <> null and a.abstractService.ID > max).collect(a | a.abstractService.ID).flatten().max();
+				if (maxInModel > max) max = maxInModel;
+			} else {
+				var maxInModel = MOD!AbsConSatisfaction.all.select(a | a.abstractService <> null and a.abstractService.ID > max).collect(a | a.abstractService.ID).flatten().max();
+				if (maxInModel > max) return new Sequence; // Can no longer assign to this object.
+			}
 			
-			var maxOfThis = object.orchestrator.absConSats.select(a | a.abstractService <> null).collect(a | a.abstractService.ID).max();
-			
-			var maxOverall = MOD!AbsConSatisfaction.all.selectOne(a | a.abstractService <> null and a.abstractService.ID >= maxOfThis+1);
-			if (maxOverall.isDefined()) return new Sequence;
-			
-			var nextAs = INPUT!AbstractService.all.selectOne(a | a.ID == maxOfThis+1);
+			var nextAs = INPUT!AbstractService.all.selectOne(a | a.ID == (max+1));
 			if (nextAs.isUndefined()) return new Sequence;
 		
-			object.orchestrator.absConSats.select(a | a.abstractService <> null).collect(a | a.abstractService.ID).print("this: ");
-			MOD!AbsConSatisfaction.all.select(a | a.abstractService <> null).collect(a | a.abstractService.ID).print(", global: ");
-			MOD!AbsConSatisfaction.all.select(a | a.orchestrator.isDefined()).size().print(", size: ");
-			nextAs.ID.println(" next: ");
 			return nextAs.asSequence();
 		}
 	} else  if (object.isTypeOf(MOD!AbsConSatisfaction) and feature.name == "concreteService") {
@@ -145,19 +168,11 @@ operation getFinitisation(object : MOD!EObject, eClass : Any, feature : MM!EStru
 }
 
 
-operation MOD!CompositeApplication prettyPrint() {
+operation MOD!ConcretePlan prettyPrint() {
 	"Solution Plan:".println();
 	
-	var plan = self.concretePlans.first();
-
-	if (plan.isUndefined()) {
-		"No plans :(".errln();
-	}
-
-		
 	for (orchestrator in self.orchestrators) {
 		("\tOrchestrator: " + orchestrator.deployedOn.ID).println();
-		orchestrator.absConSats.size().println("\t\t#ACS: ");
 		for (acs in orchestrator.absConSats) {
 			if (acs.abstractService.isUndefined()) {
 				"\t\tNo abstract service".errln();			
