@@ -95,13 +95,13 @@ img {
   max-width:100%;
 }
 
-header {
+article.left {
   width:270px;
   float:left;
-  position:fixed;
+  /*position:fixed;*/
 }
 
-header ul {
+article ul {
   list-style:none;
   height:40px;
   
@@ -121,14 +121,14 @@ header ul {
   width:270px;
 }
 
-header li {
+article li {
   width:89px;
   float:left;
   border-right:1px solid #d2d2d2;
   height:40px;
 }
 
-header ul a {
+article ul a {
   line-height:1;
   font-size:11px;
   color:#999;
@@ -143,23 +143,23 @@ strong {
   font-weight:700;
 }
 
-header ul li + li {
+article ul li + li {
   width:88px;
   border-left:1px solid #fff;
 }
 
-header ul li + li + li {
+article ul li + li + li {
   border-right:none;
   width:89px;
 }
 
-header ul a strong {
+article ul a strong {
   font-size:14px;
   display:block;
   color:#222;
 }
 
-section {
+article.right {
   width:500px;
   float:right;
   padding-bottom:50px;
@@ -179,8 +179,6 @@ hr {
 footer {
   width:270px;
   float:left;
-  position:fixed;
-  bottom:50px;
 }
 
 @media print, screen and (max-width: 960px) {
@@ -190,28 +188,28 @@ footer {
     margin:0;
   }
   
-  header, section, footer {
+  article.left, article.right, footer {
     float:none;
-    position:static;
+    /*position:static;*/
     width:auto;
   }
   
-  header {
+  article {
     padding-right:320px;
   }
   
-  section {
+  article.right {
     border:1px solid #e5e5e5;
     border-width:1px 0;
     padding:20px 0;
     margin:0 0 20px;
   }
   
-  header a small {
+  article a small {
     display:inline;
   }
   
-  header ul {
+  article ul {
     position:absolute;
     right:50px;
     top:52px;
@@ -223,11 +221,11 @@ footer {
     word-wrap:break-word;
   }
   
-  header {
+  article {
     padding:0;
   }
   
-  header ul, header p.view {
+  article ul, header p.view {
     position:static;
   }
   
@@ -241,7 +239,7 @@ footer {
     padding:15px;
   }
   
-  header ul {
+  article ul {
     display:none;
   }
 }
