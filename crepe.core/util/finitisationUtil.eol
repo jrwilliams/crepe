@@ -91,7 +91,7 @@ operation getChoicesForFeature(object : MOD!EObject, eClass : MM!EClass, feature
 	// Delegate to user-defined function
 	MOD.getResource.getContents().add(object);			// Needed to let the user access properties on the object
 	var c = getFinitisation(object, eClass, feature);
-	MOD.getResource.getContents().remove(object);		// Because the object may be redundant. It would get re-added later if needed
+	//MOD.getResource.getContents().remove(object);		// Because the object may be redundant. It would get re-added later if needed
 	
 	if (c <> null) {
 		return c;

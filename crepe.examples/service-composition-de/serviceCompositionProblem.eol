@@ -72,7 +72,8 @@ operation doEvaluateFitness(candidate:MM!EObject) : Sequence {
 	// 1. Assign the start/end of all Orchestrators
 	// 2. Possibly assign the deployedOn field
 	// 3. Potentially fix abs services (if the last Orchestrator doesn't include all remaining ASs)
-	
+	// Remove all invalid Orchestrators / Satisfactions
+	// Update the INPUT mod for evaluation.
 	
 	
 	// Maximise
@@ -95,11 +96,12 @@ operation doEvaluateFitness(candidate:MM!EObject) : Sequence {
 
 
 
-operation getFinitisation(object : MOD!EObject, eClass : MM!EClass, feature : MM!EStructuralFeature) : Sequence { 
+operation getFinitisation(object : MOD!EObject, eClass : Any, feature : MM!EStructuralFeature) : Sequence { 
 
 
 	if (object.isTypeOf(MOD!Orchestrator) and feature.name == "absConSats") {
 		return new Sequence;
+		
 	} else if (object.isTypeOf(MOD!AbsConSatisfaction) and feature.name == "orchestrator") {
 		if (object.orchestrator.isDefined()) return new Sequence;
 		return MOD!Orchestrator.all;
@@ -110,24 +112,26 @@ operation getFinitisation(object : MOD!EObject, eClass : MM!EClass, feature : MM
 		if (object.orchestrator.isUndefined()) return new Sequence;
 		
 		var acs = object.orchestrator.absConSats;
+		acs.size().println("ACS: ");
 		if (acs.size() == 0) {
 			var maxAS = MOD!AbsConSatisfaction.all.collect(a | abstractService.ID).max();
 			if (maxAS == INPUT!AbstractService.all.size()) return new Sequence;
-			return INPUT!AbstractService.all.selectOne(a | a.ID == maxAS+1).asSequence();//.println("ln120: ");
+			return INPUT!AbstractService.all.selectOne(a | a.ID == (maxAS+1)).asSequence().println("sdksdjfnsjdfnksdjbfksjfna:");//.println("ln120: ");
 		} else {
 			
 			var maxOfThis = object.orchestrator.absConSats.select(a | a.abstractService <> null).collect(a | a.abstractService.ID).max();
 			
-			var maxOverall = MOD!AbsConSatisfaction.all.selectOne(a | a.abstractService <> null and a.abstractService.ID == maxOfThis+1);
+			var maxOverall = MOD!AbsConSatisfaction.all.selectOne(a | a.abstractService <> null and a.abstractService.ID >= maxOfThis+1);
 			if (maxOverall.isDefined()) return new Sequence;
 			
 			var nextAs = INPUT!AbstractService.all.selectOne(a | a.ID == maxOfThis+1);
 			if (nextAs.isUndefined()) return new Sequence;
 		
-			//object.orchestrator.absConSats.select(a | a.abstractService <> null).collect(a | a.abstractService.ID).print();
-			//nextAs.ID.println(" next: ");
+			object.orchestrator.absConSats.select(a | a.abstractService <> null).collect(a | a.abstractService.ID).print("this: ");
+			MOD!AbsConSatisfaction.all.select(a | a.abstractService <> null).collect(a | a.abstractService.ID).print(", global: ");
+			MOD!AbsConSatisfaction.all.select(a | a.orchestrator.isDefined()).size().print(", size: ");
+			nextAs.ID.println(" next: ");
 			return nextAs.asSequence();
-		
 		}
 	} else  if (object.isTypeOf(MOD!AbsConSatisfaction) and feature.name == "concreteService") {
 		if (object.orchestrator.isUndefined() or object.abstractService.isUndefined()) return new Sequence;
