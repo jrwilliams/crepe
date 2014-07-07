@@ -21,7 +21,7 @@ h1, h2, h3 {
 }
 
 h1 {
-  font-size:36px;
+  font-size:64px;
 }
 
 h2 {
@@ -162,7 +162,7 @@ article ul a strong {
 article.right {
   width:500px;
   float:right;
-  padding-bottom:50px;
+  /*padding-bottom:50px;*/
 }
 
 small {
