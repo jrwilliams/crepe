@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="ASCII"?>
+<conf:Configuration xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:conf="http://crepe.core/meta/conf">
+  <properties name="termination.iterationsThreshold" value="10"/>
+  <properties name="population.size" value="10"/>
+  <properties name="population.initialisation.type" value="random"/>
+  <properties name="population.segments.quantity.max" value="60"/>
+  <properties name="population.segments.quantity.min" value="40"/>
+  <properties name="population.segments.featurePairs.quantity.max" value="24"/>
+  <properties name="population.segments.featurePairs.quantity.min" value="10"/>
+  <properties name="childPopulation.size" value="10"/>	
+  <properties name="childPopulation.mutation.type" value="uniform"/>
+  <properties name="childPopulation.mutation.uniform" value="0.1"/>
+  <properties name="childPopulation.construct.probability" value="0.0"/>
+  <properties name="childPopulation.destruct.probability" value="0.0"/>
+  <properties name="population.initialisation.multiObjective" value="true" />
+</conf:Configuration>

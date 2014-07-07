@@ -49,6 +49,9 @@ operation SEARCH!Individual toPhenotype() : MM!EObject {
 	// 2. Transform GEN
 	for (segment in self.segments) {
 		var obj = segment.toEObject();
+		//FIXME: obj was null
+		if (obj <> null)
+			MOD.getResource().getContents().add(obj);
 		modelObjects.add(obj);
 		objectSegmentMap.put(obj, segment);
 		segment.redundant = true;
@@ -79,6 +82,7 @@ operation SEARCH!Individual toPhenotype() : MM!EObject {
 	
 	// 5. Move the model object to MOD and clean up any dangling references
 	// TODO: Currently very inefficient. Re-look at this.
+	MOD.getResource().getContents().clear();
 	MOD.getResource().getContents().add(rootObject);
 
 	var toDelete = new Sequence; 

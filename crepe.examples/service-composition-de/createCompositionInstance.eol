@@ -1,0 +1,65 @@
+/*
+	Creates the input of the Multi-Objective Service Composition Model.
+
+	The entities created here correspond to the static elements of the OrchestrationMM.
+	
+	Input models: 
+		INPUT : the partial solution.
+*/
+
+// Container
+var comp = new INPUT!CompositeApplication;
+
+// Create abstract composition plan
+var abstractPlan = new INPUT!AbstractPlan;
+
+// The mapping between concrete and abstract services
+var mapping : Sequence = Sequence{12, 24, 16, 16, 16};
+
+var tempID = 1;
+
+// Create abstract services
+for (i in Sequence{0..4}) {
+	var abstract = new INPUT!AbstractService;
+	abstract.ID = i + 1;
+	
+	for (j in Sequence{1..mapping.at(i)}) {
+		// Create network nodes
+		var node = new INPUT!Node;
+		node.ID = tempID;
+		
+		// Create concrete services
+		var concrete = new INPUT!ConcreteService;
+		concrete.ID = tempID;
+		concrete.providedBy = node;
+		concrete.abstractService = abstract;
+		node.providedService = concrete;
+		
+		comp.networkNodes-> add(node);
+		comp.concreteServices-> add(concrete);
+		tempID = tempID + 1;
+	}
+	
+	abstractPlan.abstractServices->add (abstract);
+}
+
+// Connect abstract services in a sequential flow
+var abs1 = INPUT!AbstractService.all->selectOne(a | a.ID = 1);
+var abs2 = INPUT!AbstractService.all->selectOne(a | a.ID = 2);
+var abs3 = INPUT!AbstractService.all->selectOne(a | a.ID = 3);
+var abs4 = INPUT!AbstractService.all->selectOne(a | a.ID = 4);
+var abs5 = INPUT!AbstractService.all->selectOne(a | a.ID = 5);
+abs1.targetServices->add(abs2);
+abs2.targetServices->add(abs3);
+abs3.targetServices->add(abs4);
+abs4.targetServices->add(abs5);
+
+// Set the starting and ending abstract service of the plan
+abstractPlan.start = abs1;
+abstractPlan.end = abs5;
+comp.abstractPlan = abstractPlan;
+
+// Create the user that initiates the request for the service composition
+var user = new INPUT!User;
+user.hostedOn = INPUT!Node.all->selectOne(n | n.ID = 1);
+comp.serviceUser->add(user);

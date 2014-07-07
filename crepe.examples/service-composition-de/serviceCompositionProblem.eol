@@ -1,0 +1,171 @@
+/**
+	An example of using Crepe to solve the Multi-Objective Service Composition Problem.
+
+	Input models:
+		INPUT	: The concrete instance of the NRP	
+		MOD		: Placeholder for the solution (metamodel uri = "NextReleaseProblem"
+		MM		: NextReleaseProblemSolution
+		FIN		: Placeholder for finitisation model, which is auto-generated.
+		CONF	: Configuration file
+		SEARCH	: The search model
+*/
+import "../../crepe.core/util/util.eol";
+import "../../crepe.core/util/finitisationModelCreationUtil.eol";
+import '../../crepe.core/search/algs/nsgaii.eol';
+
+// Required utility variables
+var t = 0;
+var run = 1;
+var totalRuns = 1;
+var random = setupRandomSeed();
+var unassignedReferences;
+var modelObjects;
+var instantiableClasses;
+var objectSegmentMap;
+var featureFeaturePairMap;
+var fitFunctionIsEol = true;
+var featureCollection;
+var maxAllele = 100;  
+
+// Configure the amount of debug information you want to see
+var DEBUG = Sequence{"LOG"}; // Choices: LOG, WARN, DEBUG
+
+// Execute the algorithm multiple times for statistical purposes
+for (i in Sequence{1..totalRuns}) {
+	run.println("Experiment Run: ");
+	// Now go
+	commence();
+	run = run + 1; // Increase experiment iteration 
+	t = 0; // Reset the algorithm
+}
+
+/**
+	@param candidate - a RequirementSelection object
+*/
+operation doEvaluateFitness(candidate:MM!EObject) : Sequence {	
+	// Little trick needed to make the candidate conform to the Queens MM
+//	MOD.getResource.getContents().clear();
+//	MOD.getResource.getContents().add(candidate);
+//	MOD.store();	
+
+	//candidate.prettyPrint();
+
+	//for (plan in MOD!ConcretePlan.all) {
+	//	"Plan = ".println();
+	//	for (orchestrator in MOD!Orchestrator.all) {
+	//		orchestrator.println();	
+	//		var node := MOD!Node;
+	//		node = orchestrator.deployedOn;
+	//		node.println();
+	//		node.ID.asInteger().println();
+	//		node.ID.println("Orchestrator: ");
+	//	}
+	//}
+ 	//
+	
+	//var candidatePhenotype = candidate.toPhenotype();
+	//candidatePhenotype.println();
+	// Pretty print
+	candidate.prettyPrint();
+	
+	// Things to do:
+	// 1. Assign the start/end of all Orchestrators
+	// 2. Possibly assign the deployedOn field
+	// 3. Potentially fix abs services (if the last Orchestrator doesn't include all remaining ASs)
+	
+	
+	
+	// Maximise
+	var score = 1;
+	
+	// Minimise
+	var cost = 2;
+	
+	// Create objectives (TODO: We can make a utility method for this)
+	var o1 = new SEARCH!Objective;
+	o1.minimise = false;
+	o1.score = score.asDouble();
+	
+	var o2 = new SEARCH!Objective;
+	o2.minimise = true;
+	o2.score = cost.asDouble();
+	
+	return Sequence{o1, o2};
+}
+
+
+
+operation getFinitisation(object : MOD!EObject, eClass : MM!EClass, feature : MM!EStructuralFeature) : Sequence { 
+
+
+	if (object.isTypeOf(MOD!Orchestrator) and feature.name == "absConSats") {
+		return new Sequence;
+	} else if (object.isTypeOf(MOD!AbsConSatisfaction) and feature.name == "orchestrator") {
+		if (object.orchestrator.isDefined()) return new Sequence;
+		return MOD!Orchestrator.all;
+	} else if (object.isTypeOf(MOD!AbsConSatisfaction) and feature.name == "abstractService") {
+		
+		if (object.abstractService.isDefined()) return new Sequence;
+		
+		if (object.orchestrator.isUndefined()) return new Sequence;
+		
+		var acs = object.orchestrator.absConSats;
+		if (acs.size() == 0) {
+			var maxAS = MOD!AbsConSatisfaction.all.collect(a | abstractService.ID).max();
+			if (maxAS == INPUT!AbstractService.all.size()) return new Sequence;
+			return INPUT!AbstractService.all.selectOne(a | a.ID == maxAS+1).asSequence();//.println("ln120: ");
+		} else {
+			
+			var maxOfThis = object.orchestrator.absConSats.select(a | a.abstractService <> null).collect(a | a.abstractService.ID).max();
+			
+			var maxOverall = MOD!AbsConSatisfaction.all.selectOne(a | a.abstractService <> null and a.abstractService.ID == maxOfThis+1);
+			if (maxOverall.isDefined()) return new Sequence;
+			
+			var nextAs = INPUT!AbstractService.all.selectOne(a | a.ID == maxOfThis+1);
+			if (nextAs.isUndefined()) return new Sequence;
+		
+			//object.orchestrator.absConSats.select(a | a.abstractService <> null).collect(a | a.abstractService.ID).print();
+			//nextAs.ID.println(" next: ");
+			return nextAs.asSequence();
+		
+		}
+	} else  if (object.isTypeOf(MOD!AbsConSatisfaction) and feature.name == "concreteService") {
+		if (object.orchestrator.isUndefined() or object.abstractService.isUndefined()) return new Sequence;
+		
+		var choices =  object.abstractService.concreteServices.asSequence();
+		return choices;
+	} else if(object.isTypeOf(MOD!AbsConSatisfaction) and feature.name == "orchestrator") {
+		return new Sequence; // TODO: Maybe we do actually want to assign something here
+	}
+	return null;
+}
+
+
+operation MOD!CompositeApplication prettyPrint() {
+	"Solution Plan:".println();
+	
+	var plan = self.concretePlans.first();
+
+	if (plan.isUndefined()) {
+		"No plans :(".errln();
+	}
+
+		
+	for (orchestrator in self.orchestrators) {
+		("\tOrchestrator: " + orchestrator.deployedOn.ID).println();
+		orchestrator.absConSats.size().println("\t\t#ACS: ");
+		for (acs in orchestrator.absConSats) {
+			if (acs.abstractService.isUndefined()) {
+				"\t\tNo abstract service".errln();			
+			} else {
+				acs.abstractService.ID.println("\t\tAbstract: ");
+			}
+			if (acs.concreteService.isUndefined()) {
+				"\t\tNo concrete service".errln();	
+			} else  {
+				acs.concreteService.ID.println("\t\tConcrete: ");
+			}
+		}
+		 
+	}
+}

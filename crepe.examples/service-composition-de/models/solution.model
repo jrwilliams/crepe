@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="ASCII"?>
+<OrchestrationMM:CompositeApplication xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:OrchestrationMM="http://OrchestrationMM/1.0">
+  <concretePlans end="//@concretePlans.0/@orchestrators.1">
+    <orchestrators>
+      <deployedOn href="input2.model#//@networkNodes.75"/>
+    </orchestrators>
+    <orchestrators>
+      <absConSats/>
+      <absConSats/>
+      <absConSats/>
+      <absConSats/>
+      <absConSats/>
+      <absConSats/>
+      <absConSats/>
+      <deployedOn href="input2.model#//@networkNodes.52"/>
+    </orchestrators>
+    <orchestrators>
+      <absConSats/>
+      <absConSats/>
+      <absConSats/>
+      <deployedOn href="input2.model#//@networkNodes.32"/>
+    </orchestrators>
+  </concretePlans>
+</OrchestrationMM:CompositeApplication>
