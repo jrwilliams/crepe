@@ -101,7 +101,7 @@ article.left {
   /*position:fixed;*/
 }
 
-article ul {
+article ul.dls {
   list-style:none;
   height:40px;
   
@@ -121,14 +121,14 @@ article ul {
   width:270px;
 }
 
-article li {
+article ul.dls li {
   width:89px;
   float:left;
   border-right:1px solid #d2d2d2;
   height:40px;
 }
 
-article ul a {
+article ul.dls a {
   line-height:1;
   font-size:11px;
   color:#999;
@@ -143,17 +143,17 @@ strong {
   font-weight:700;
 }
 
-article ul li + li {
+article ul.dls li + li {
   width:88px;
   border-left:1px solid #fff;
 }
 
-article ul li + li + li {
+article ul.dls li + li + li {
   border-right:none;
   width:89px;
 }
 
-article ul a strong {
+article ul.dls a strong {
   font-size:14px;
   display:block;
   color:#222;
