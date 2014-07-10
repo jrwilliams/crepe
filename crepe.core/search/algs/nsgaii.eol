@@ -64,6 +64,13 @@ operation commence() {
 		population = archive.breed(archiveSize);
 	}
 	
+//	pareto.size().println("Number in pareto: ");
+	for (ind in pareto) {
+		var phenotype = ind.toPhenotype();
+		phenotype.~printend = true;
+		doEvaluateFitness(phenotype);
+	}
+	
 	// TODO the final result is in 'pareto'/'archive' - what shall we do with it?
 	// For now, print to console for plotting purposes
 	var res = pareto.collect(ind | ind.objectives.score);//.println();
@@ -83,10 +90,10 @@ operation Sequence breed(popSize : Integer) : SEARCH!Population {
 	var newPopulation = new SEARCH!Population;
 	SEARCH!Search.all.last().generations.add(newPopulation);
 	
-	var dup = self.duplicate(); // THIS NEEDS TESTING
+	//var dup = self.duplicate(); // THIS NEEDS TESTING
 
 	// Selection
-	var parents = dup.nonDominatedSparsitySelection(popSize);
+	var parents = self.nonDominatedSparsitySelection(popSize);
 	
 	// Reproduce
 	var children = parents.breedAndAdapt(); 
@@ -131,21 +138,30 @@ operation Sequence computeSparsities() {
 	var numObjectives = self.at(0).objectives.size();
 	
 	for (i in Sequence{0..numObjectives-1}) {
+		//var minimise = self.at(0).objectives.at(i).minimise;
 		
+		// To do, does the maximise/minimise matter or sparsity?
 		var sorted = self.sortBy(p1 | 
-			p1.objectives.at(i)
+			p1.objectives.at(i).score
 		);
+		
+		//sorted.collect(ind | ind.objectives.at(i).score).println("scores: ");
+		
+		//if (not minimise) {
+		//	sorted = sorted.invert(); //.collect(ind | ind.objectives.at(i).score).println("scores inv: ");
+		//}
 		
 		sorted.at(0).sparsity = 99999999.asDouble(); 
 		sorted.at(sorted.size()-1).sparsity = 99999999.asDouble();
 		
 		if (sorted.size() > 2) {
 			for (j in Sequence{1..sorted.size()-2}) {
-				var fj = sorted.at(j).objectives.at(i);
-				var fjplus1 = sorted.at(j+1).objectives.at(i);
-				var fjminus1 = sorted.at(j-1).objectives.at(i); 
+				var fj = sorted.at(j).objectives.at(i).score;
+				var fjplus1 = sorted.at(j+1).objectives.at(i).score;
+				var fjminus1 = sorted.at(j-1).objectives.at(i).score; 
 			
-				sorted.at(j).sparsity = (fjplus1 - fjminus1);// / (1-0));// (MAXOBJECTIVE - MINOBJECTIVE); //TODO???
+				sorted.at(j).sparsity = sorted.at(j).sparsity + (fjplus1 - fjminus1);// / (1-0));// (MAXOBJECTIVE - MINOBJECTIVE); //TODO???
+				//sorted.at(j).sparsity.println(); 
 			}
 		}
 	}
@@ -153,6 +169,10 @@ operation Sequence computeSparsities() {
 
 // Uses ECJ's implementation as reference (ec.multiobjective.MultiObjectiveFitness.java)
 operation partitionIntoParetoFront(pop : OrderedSet, front : OrderedSet, nonFront : OrderedSet, rank : Integer) : OrderedSet {
+
+	
+	// Old impl
+	
 	front.add(pop.at(0));
 	
 	if (pop.size() == 1) return front;
@@ -199,14 +219,21 @@ operation partitionIntoRanks(population : Sequence) : Sequence { // of Sequences
 		var nonFront = new OrderedSet;
 		partitionIntoParetoFront(workingPop, front, nonFront, rank);
 		workingPop = nonFront;
+		
+		//if (front.size() == 0) "Empty front".println();
+		
 		frontsByRank.add(front.asSequence());
 		rank = rank + 1;
 	} 
 	
+	//frontsByRank.flatten().collect(i | i.rank).asSet().println("ranks: ");
+	
+	//frontsByRank.size().println("#fronts: ");
 	return frontsByRank;
 }
 
 operation dominates(ind1 : SEARCH!Individual, ind2 : SEARCH!Individual) : Boolean {
+	
 	for (i in Sequence{0..ind1.objectives.size()-1}) { // Assumes same index for each objective.
 		
 		if (ind1.objectives.at(i).minimise) {
@@ -226,7 +253,6 @@ operation dominates(ind1 : SEARCH!Individual, ind2 : SEARCH!Individual) : Boolea
 
 operation selectParents(fronts : Sequence, size : Integer) : Sequence {
 	for (front in fronts) {
-	front.println();
 		front.calculateCrowdingDistance();
 	}
 	var offspring = new Sequence;
