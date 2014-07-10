@@ -213,6 +213,11 @@ operation SEARCH!Individual duplicate() : SEARCH!Individual {
 		newIndividual.rank = self.rank;
 		newIndividual.sparsity = self.sparsity;
 		newIndividual.isMultiObjective = self.isMultiObjective;
+		
+		for (o in self.objectives) {
+			newIndividual.objectives.add(o.duplicate());
+		}
+		
 	} else {
 		newIndividual = new SEARCH!Individual;
 	}
@@ -252,6 +257,15 @@ operation SEARCH!FeaturePair duplicate() : SEARCH!FeaturePair {
 	newFp.featureValueBit = self.featureValueBit;
 	
 	return newFp;
+}
+
+operation SEARCH!Objective duplicate() : SEARCH!Objective {
+	var newO = new SEARCH!Objective;
+	
+	newO.score = self.score;
+	newO.minimise = self.minimise;
+	
+	return newO;
 }
 
 /**
