@@ -36,13 +36,15 @@ operation commence() {
 	while (not terminate()) {
 		// Evaluation
 		population.evaluate();
-		population.individuals.addAll(archive);
-		population.individuals = population.individuals.asSet().asSequence(); // Yuck
+		
+		var inds = population.individuals.asSequence();
+		inds.addAll(archive);
+		inds = inds.asSet().asSequence(); // Yuck
 									// asSet() will have no effect here due to 
 									// object duplication. unless we duplicate the archive ?
 									// Added this into breed(). Needs testing.
 		// Ranking
-		var ranks = partitionIntoRanks(population.individuals.asSequence()); 
+		var ranks = partitionIntoRanks(inds);//population.individuals.asSequence()); 
 		pareto = ranks.at(0); 
 		archive.clear();
 		
@@ -59,12 +61,15 @@ operation commence() {
 				archive = archive.asSet().asSequence(); //yuck 
 			}
 		} 
-	
+		
+		archive.collect(i | i.rank).asSet().println("archive ranks: ");
+
 		// Breed
 		population = archive.breed(archiveSize);
+		
+		population.individuals.collect(i | i.rank).asSet().println("pop ranks after breed: ");
 	}
 	
-//	pareto.size().println("Number in pareto: ");
 	for (ind in pareto) {
 		var phenotype = ind.toPhenotype();
 		phenotype.~printend = true;
@@ -90,8 +95,6 @@ operation Sequence breed(popSize : Integer) : SEARCH!Population {
 	var newPopulation = new SEARCH!Population;
 	SEARCH!Search.all.last().generations.add(newPopulation);
 	
-	//var dup = self.duplicate(); // THIS NEEDS TESTING
-
 	// Selection
 	var parents = self.nonDominatedSparsitySelection(popSize);
 	
@@ -161,18 +164,14 @@ operation Sequence computeSparsities() {
 				var fjminus1 = sorted.at(j-1).objectives.at(i).score; 
 			
 				sorted.at(j).sparsity = sorted.at(j).sparsity + (fjplus1 - fjminus1);// / (1-0));// (MAXOBJECTIVE - MINOBJECTIVE); //TODO???
-				//sorted.at(j).sparsity.println(); 
 			}
 		}
 	}
 }
 
 // Uses ECJ's implementation as reference (ec.multiobjective.MultiObjectiveFitness.java)
-operation partitionIntoParetoFront(pop : OrderedSet, front : OrderedSet, nonFront : OrderedSet, rank : Integer) : OrderedSet {
-
-	
-	// Old impl
-	
+operation partitionIntoParetoFront(pop : OrderedSet, nonFront : OrderedSet, rank : Integer) : OrderedSet {
+	var front = new OrderedSet;
 	front.add(pop.at(0));
 	
 	if (pop.size() == 1) return front;
@@ -215,9 +214,8 @@ operation partitionIntoRanks(population : Sequence) : Sequence { // of Sequences
 	var rank = 0;
 	
 	while (workingPop.size() > 0) {
-		var front = new OrderedSet;
 		var nonFront = new OrderedSet;
-		partitionIntoParetoFront(workingPop, front, nonFront, rank);
+		var front = partitionIntoParetoFront(workingPop, nonFront, rank);
 		workingPop = nonFront;
 		
 		//if (front.size() == 0) "Empty front".println();
@@ -226,9 +224,6 @@ operation partitionIntoRanks(population : Sequence) : Sequence { // of Sequences
 		rank = rank + 1;
 	} 
 	
-	//frontsByRank.flatten().collect(i | i.rank).asSet().println("ranks: ");
-	
-	//frontsByRank.size().println("#fronts: ");
 	return frontsByRank;
 }
 
