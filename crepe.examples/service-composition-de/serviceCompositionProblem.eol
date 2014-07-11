@@ -30,6 +30,18 @@ var maxAllele = 100;
 // Configure the amount of debug information you want to see
 var DEBUG = Sequence{"LOG"}; // Choices: LOG, WARN, DEBUG
 
+var g = randomlyCreateIndividuals(1).first();
+
+var p1 = g.toPhenotype();
+var p2 = g.toPhenotype();
+
+"P1: ".println();
+doEvaluateFitness(p1);
+"P2: ".println();
+doEvaluateFitness(p2);
+
+return;
+
 // Execute the algorithm multiple times for statistical purposes
 for (i in Sequence{1..totalRuns}) {
 	run.println("Experiment Run: ");
@@ -50,6 +62,9 @@ for (i in Sequence{1..totalRuns}) {
 	// Update the INPUT mod for evaluation.
 	
 operation doEvaluateFitness(candidate:MM!EObject) : Sequence {	
+	candidate.println();
+
+
 	// Clean up any invalid orchestrators/absConSats
  	var orchsToRemove = new Sequence;
  	for (orch in candidate.orchestrators) {
@@ -75,7 +90,7 @@ operation doEvaluateFitness(candidate:MM!EObject) : Sequence {
 		}
 	}
 	
-	candidate.prettyPrint();
+//	candidate.prettyPrint();
 	
 	//TODO: Dionysios:
 	// 1) Do we need to assign Orchestrator.start and Orchestrator.end?
@@ -92,10 +107,10 @@ operation doEvaluateFitness(candidate:MM!EObject) : Sequence {
 	// TODO: delegate to real fitness function.
 	
 	// Maximise
-	var score = 1;
+	var score = random.nextInt(100);
 	
 	// Minimise
-	var cost = 2;
+	var cost = random.nextInt(100);
 	
 	// Create objectives (TODO: We can make a utility method for this)
 	var o1 = new SEARCH!Objective;
@@ -105,6 +120,22 @@ operation doEvaluateFitness(candidate:MM!EObject) : Sequence {
 	var o2 = new SEARCH!Objective;
 	o2.minimise = true;
 	o2.score = cost.asDouble();
+	
+	//
+	if (candidate.~printend == true) {
+		INPUT!ConcreteService.all.size().println("#CSs: ");
+		candidate.prettyPrint();
+		"%".println();
+//		break;
+//		for (o in candidate.orchestrators) {
+//			o.deployedOn.ID.println("#");
+//			for (a in o.absConSats) {
+//				a.concreteService.ID.println();
+//			}
+//		}
+		// or call candidate.prettyPrint() here
+	}
+	
 	
 	// Now reset the INPUT model
 	INPUT!CompositeApplication.all.first().concretePlans.clear();
