@@ -25,6 +25,7 @@
     <!-- <p class="view"><a href="https://github.com/jrwilliams/crepe">View the Project on GitHub <small>jrwilliams/crepe</small></a></p> -->
     <h3>Examples: Contents</h3>
     <ul>
+      <li><a href="#prerequisites">Prerequisites</a></li>
       <li><a href="#gettingstarted">Getting Started</a></li>
       <li><a href="#nqueens">Example 1: N-Queens</a></li>
       <li><a href="#tsp">Example 2: Travelling Salesmen</a></li>
@@ -35,16 +36,86 @@
   </article>
   <article class="right">
     <h3>
+      <a name="prerequisites" class="anchor" href="#prerequisites"><span class="octicon octicon-link"></span></a>Prerequisites
+    </h3>
+    <p>
+    Crepe depends on two things: <a href="http://www.eclipse.org/epsilon">Epsilon</a> and the <a href="http://www.eclipse.org/emf">Eclipse Modeling Framework</a>. Although Crepe can be run without installing Epsilon or EMF, the easiest way to run Crepe will be to <a href="#">install Epsilon</a> which will also download all dependencies. You may also wish to install <a href="http://www.eclipse.org/emfatic">Emfatic</a>, a textual language for defining EMF metamodels.
+    </p>
+    <p>
+      Crepe is written in the <a href="http://www.eclipse.org/epsilon">Epsilon Object Language</a> (EOL), a model management language. Although fitness functions can be written in Java, you will need to write some EOL code. The examples below should hopefully be self-explanatory, but if you need some extra help in understanding EOL, the Epsilon <a href="http://www.eclipse.org/epsilon">website</a> has a great deal of documentation.
+    </p>
+    <p>
+      
+    </p>
+    </article>
+  <article class="right">
+    <h3>
       <a name="gettingstarted" class="anchor" href="#gettingstarted"><span class="octicon octicon-link"></span></a>Getting Started
     </h3>
-    <p>Crepe is an extensible framework that enables Search-Based Software Engineering (SBSE) techniques to be applied to Model-Driven Engineering (MDE) problems. Crepe provides a generic encoding of <a href="http://www.eclipse.org/emf">EMF</a> models that can represent any model conforming to a given metamodel, thus enables many well known metaheuristic optimisation algorithms (e.g. Genetic Algorithms) to be applied in the MDE domain. If the solution to your problem has a metamodel, you can use Crepe. If the parts of your problem are models, but the solution isn't, you can still use Crepe. Out of the box, Crepe currently provides a simple <a href="http://www.wikipedia.org/hillclimbing">hill climbing</a> algorithm, a <a href="http://www.wikipedia.org/geneticalgorithms">genetic algorithm</a>, and <a href="http://www.wikipedia.org/nsgaii">NSGA-II</a> for multi-objective problems.</p>
+    <ol>
+      <li><strong>Download or clone Crepe repo</strong>
+        <p>Either <a href="https://github.com/jrwilliams/crepe/zipball/master">download</a> or <a href="https://github.com/jrwilliams/crepe">clone</a> the Crepe repository. Cloning the repository will enable you to easily pull any new features.</p>
+        <p>Clone url: <code>https://github.com/jrwilliams/crepe.git</code></p>
+      </li>
+      <li><strong>Import into Eclipse</strong>
+        <p>Import the Crepe projects into Eclipse in the standard way: <code>File &gt; Import... &gt; Existing projects into Workspace</code></p>
+      </li>
+      <li><strong>Create new empty project</strong>
+        <p>Create a new project that will contain the your problem's code and models. <code>File &gt; New &gt; Project... &gt; Empty project.</code></p>
+        <p>Create two folders in this project: one called <code>models</code> and the other called <code>metamodels</code>.</p>
+      </li>
+      <li><strong>Create new EOL script</strong>
+        <p>To apply Crepe to your problem create a new EOL file called, for example, <code>myproblem.eol</code>. See the example below to see how to use this.</p>
+      </li>
+      <li><strong>Create build.xml</strong>
+        <p>Crepe is executed using ANT. Create a file called <code>build.xml</code> in your project. See the examples below to see how to use this.</p>
+      </li>
+    <p></p>
   </article>
   <article class="right">
     <h3>
       <a name="nqueens" class="anchor" href="#crepe-canonical-representation-for-ecore-models"><span class="octicon octicon-link"></span></a>Example 1: N-Queens
     </h3>
 
-    <p>TODO: Explain a bit about the representation - how it works.</p>
+    <p><code>To do:</code> Introduction to the N Queens problem.</p>
+    <p>This example is written as a tutorial that explains the different aspects of Crepe.</p>
+    <ol>
+      <li><strong>Defining the problem metamodel</strong>
+        <p>In these examples, we use a textual notation called <a href="#">Emfatic</a> to specify our metamodels. Emfatic generates a .ecore file from this notation. If you prefer to create your Ecore model in an alternative way, such as using the Ecore tree editor, that is totally fine.</p>
+        <p>Create a file in the metamodels folder called <code>Queens.emf</code>. The metamodel (in Emfatic) for the N-Queens problem looks as follows:</p>
+        <pre><code>
+@namespace(uri="Queens", prefix="Queens")
+package Queens;
+
+class Board {
+   val Queen[*] queens;
+}
+
+class Queen {
+   attr int row = -1;
+   attr int col = -1;
+}
+        </code></pre>
+        <p>To do: explain this</p>
+      </li>
+      <li><strong>Specifying the fitness function</strong>
+        <p>To define a fitness function for our problem, we need to implement an operation called <code>doEvaluateFitness</code>:</p>
+        <pre><code>
+operation doEvaluateFitness(candidate:MM!EObject) : Real {  
+  // To do: complete
+}
+        </code></pre>
+        <p>
+          Each candidate solution produced by Crepe is passed to this operation for evaluation. The <code>candidate</code> field is an object conforming to the <code class="glossary">root object</code>
+        </p>
+      </li>
+      <li><strong>Creating a problem configuration model</strong>
+        <p>sds</p>
+      </li>
+      <li><strong>Configuring the build.xml</strong>
+        <p>sds</p>
+      </li>
+    </ol>
   </article>
   <article class="right">
     <h3>
