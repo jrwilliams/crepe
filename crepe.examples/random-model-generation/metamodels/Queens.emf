@@ -1,0 +1,11 @@
+@namespace(uri="Queens", prefix="Queens")
+package Queens;
+
+class Board {
+   val Queen[*] queens;
+}
+
+class Queen {
+   attr int row = -1;
+   attr int col = -1;
+}

@@ -1,0 +1,38 @@
+/**
+	A random model generator.
+
+	Input models:
+		MOD		: Placeholder for the solution (metamodel uri = "Queens"
+		MM		: Queens.ecore
+		FIN		: Placeholder for finitisation model, which is auto-generated.
+		CONF	: Configuration file - gets auto-updated with N
+		SEARCH	: The search model
+
+	Input parameters:
+		numModels	: the number of models to generate
+		outDir 		: the place to save models
+*/
+import "../../crepe.core/util/util.eol";
+import "../../crepe.core/util/finitisationModelCreationUtil.eol";
+
+// Define the N in N-Queens
+var n = 8;
+
+// Required utility variables
+var t = 0;
+var random = setupRandomSeed();
+var unassignedReferences;
+var modelObjects;
+var instantiableClasses;
+var objectSegmentMap;
+var featureFeaturePairMap;
+var fitFunctionIsEol = true;
+var featureCollection;
+var maxAllele = n-1;  
+
+// Create a population
+var pop = randomlyCreateIndividuals(numModels.asInteger());
+
+for (p in pop) {
+	var phenotype = p.toPhenotype();
+}
