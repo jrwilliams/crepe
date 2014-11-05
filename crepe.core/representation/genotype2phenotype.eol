@@ -151,6 +151,10 @@ operation MM!EObject assignFeature(fp : SEARCH!FeaturePair) {
 		return;
 	}
 
+
+	// TODO: This 'choices' invokes the custom getFinitisation which
+	// is biased towards early-made objects... FUCK
+
 	// Select all possibilities
 	var choices = getChoicesForFeature(self, self.eClass, feature);
 
@@ -164,16 +168,13 @@ operation MM!EObject assignFeature(fp : SEARCH!FeaturePair) {
 		var val = choices.at(test);
 		self.setOrAddNewValue(feature, val, fp);
 	} else if (feature.isTypeOf(MM!EReference)) {
-		if (choices == null){//} or choices.size() == 0) {   ///FIXME CHECK THIS LATER (7th July 2014) --  this won't work in the general case, the user-defined fins function needs to return something else.
+		if (choices == null or choices.size() == 0) {  
 			// Create an unassigned reference
 			var unref = SEARCH!UnhandledReference.createInstance();
 			unref.object = self;
 			unref.reference = feature;
 			unref.featurePair = fp;
 			unassignedReferences.add(unref);
-	
-		} else if (choices.size() == 0) {
-			// do nothing
 		} else{
 			// If there is a finitisation for the reference, we will assign it
 			// (this could be, for example, a cross-model reference)
@@ -225,13 +226,16 @@ operation MM!EObject setOrAddNewValue(feature : MM!EStructuralFeature, value : A
  */
 operation assignUnassignedG2PReference(ref : SEARCH!UnhandledReference) {
 
-	// TODO: This does not currently support X-model refs
-	var potentialTargets = modelObjects.select(o | ref.reference.eType.isInstance(o));
+	// TODO: This does not currently support X-model refs. But these should already be covered by the original assignment?
+	
+	var potentialTargets = getFinitisation(ref.object, ref.object.eClass, ref.reference);
+	if (potentialTargets == null or potentialTargets.size() == 0) {
+		potentialTargets = modelObjects.select(o | ref.reference.eType.isInstance(o));
+	}	
 	
 	if (potentialTargets.size() > 0) {
 		var target = potentialTargets.at(modulo(ref.featurePair.featureValueBit, potentialTargets.size()));	
 		ref.object.setOrAddNewValue(ref.reference, target, ref.featurePair);
-	//		objectSegmentMap.get(target).redundant = false;
 	} else {
 		ref.featurePair.redundant = true;
 	}
