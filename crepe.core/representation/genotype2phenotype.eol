@@ -231,10 +231,21 @@ operation assignUnassignedG2PReference(ref : SEARCH!UnhandledReference) {
 	var potentialTargets = getFinitisation(ref.object, ref.object.eClass, ref.reference);
 	if (potentialTargets == null or potentialTargets.size() == 0) {
 		potentialTargets = modelObjects.select(o | ref.reference.eType.isInstance(o));
-	}	
+	}
 	
 	if (potentialTargets.size() > 0) {
 		var target = potentialTargets.at(modulo(ref.featurePair.featureValueBit, potentialTargets.size()));	
+
+// TODO: Attempt to make the assignment fair. If we don't allow reassignment, it favours early objects. If we do, it favours later.
+//		 Goal therefore is to only reassign with a given probability.
+//		if (ref.reference.containment and target.eContainer().isUndefined()) {
+//			// Re-allocate with a probability -- trying to stop favouring the latter objects so much.
+//			if (random.nextDouble() > 0.4) {
+//				ref.object.setOrAddNewValue(ref.reference, target, ref.featurePair);
+//			}
+//		} else {
+//			ref.object.setOrAddNewValue(ref.reference, target, ref.featurePair);
+//		}
 		ref.object.setOrAddNewValue(ref.reference, target, ref.featurePair);
 	} else {
 		ref.featurePair.redundant = true;
